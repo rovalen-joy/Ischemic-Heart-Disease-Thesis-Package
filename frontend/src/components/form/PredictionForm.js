@@ -294,7 +294,7 @@ const PredictionForm = () => {
       >
         {/* Last Name */}
         <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'>
+          <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
             Patient's Last Name:
           </label>
           <input
@@ -310,7 +310,7 @@ const PredictionForm = () => {
 
         {/* First Name */}
         <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'>
+          <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
             Patient's First Name:
           </label>
           <input
@@ -326,7 +326,7 @@ const PredictionForm = () => {
 
         {/* Age */}
         <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'>
+          <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
             Patient's Age:
           </label>
           <input
@@ -343,7 +343,7 @@ const PredictionForm = () => {
 
         {/* Sex */}
         <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'>Patient's Sex:</label>
+          <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>Patient's Sex:</label>
           <select
             className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
             onChange={handleFormChange}
@@ -402,12 +402,12 @@ const PredictionForm = () => {
       >
         {/* Blood Pressure */}
         <div className='flex flex-col md:col-span-2'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'>
+          <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
             Blood Pressure (mm Hg):
           </label>
           <div className='flex items-start'>
             <div className='flex flex-col w-1/2 mr-2'>
-              <label className='text-gray-700 font-semibold text-sm mb-1'>
+              <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
                 Systolic
               </label>
               <input
@@ -423,7 +423,7 @@ const PredictionForm = () => {
             </div>
             <span className='text-gray-700 font-semibold mx-2 mt-8'>/</span>
             <div className='flex flex-col w-1/2 ml-2'>
-              <label className='text-gray-700 font-semibold text-sm mb-1'>
+              <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
                 Diastolic
               </label>
               <input
@@ -444,7 +444,7 @@ const PredictionForm = () => {
         <div className='flex flex-col md:flex-row md:col-span-2'>
           {/* Cholesterol Level */}
           <div className='flex flex-col md:w-1/2 md:mr-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'>
+            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
               Cholesterol Level (mg/dL):
             </label>
             <input
@@ -461,7 +461,7 @@ const PredictionForm = () => {
           </div>
           {/* History of Stroke */}
           <div className='flex flex-col md:w-1/2 md:ml-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'>
+            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
               History of Stroke:
             </label>
             <select
@@ -484,7 +484,7 @@ const PredictionForm = () => {
         <div className='flex flex-col md:flex-row md:col-span-2'>
           {/* Weight */}
           <div className='flex flex-col md:w-1/3 md:mr-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'>
+            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
               Weight (kg):
             </label>
             <input
@@ -501,7 +501,7 @@ const PredictionForm = () => {
           </div>
           {/* Height */}
           <div className='flex flex-col md:w-1/3 md:mx-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'>
+            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
               Height (cm):
             </label>
             <input
@@ -518,7 +518,7 @@ const PredictionForm = () => {
           </div>
           {/* BMI */}
           <div className='flex flex-col md:w-1/3 md:ml-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'>
+            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
               BMI (kg/m²):
             </label>
             <input
