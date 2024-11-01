@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import axios from 'axios';
 import ModalSave from '../Modal/ModalSave';
 import ModalNew from '../Modal/ModalNew';
@@ -12,7 +12,7 @@ import {
   where,
 } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-import { UserAuth } from '../../context/AuthContext';
+import { UserAuth } from '../../context/AuthContext'; 
 import {
   FaArrowRight,
   FaArrowLeft,
@@ -56,7 +56,7 @@ const PredictionForm = () => {
   };
 
   // Access the authenticated user from AuthContext
-  const { user } = UserAuth();
+  const { user } = UserAuth(); 
 
   // Modal visibility states
   const [modalNew, setModalNew] = useState(false);
@@ -97,7 +97,7 @@ const PredictionForm = () => {
     });
   };
 
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = process.env.REACT_APP_API_URL; 
 
   // Handle form submission to get prediction results
   const handleSubmit = async (e) => {
@@ -126,7 +126,7 @@ const PredictionForm = () => {
     console.log('Sending data to backend:', formattedDetails);
     try {
       const response = await axios.post(
-        '${API_URL}/predict',
+        `${API_URL}/predict`, 
         formattedDetails
       );
       console.log('Received response from backend:', response.data);
@@ -401,6 +401,7 @@ const PredictionForm = () => {
       <form
         className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-6'
         onSubmit={handleSubmit}
+        ref={formRef}
       >
         {/* Blood Pressure */}
         <div className='flex flex-col md:col-span-2'>
@@ -552,8 +553,9 @@ const PredictionForm = () => {
             type='submit'
             className='bg-[#00717A] text-white font-semibold px-6 py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200'
             aria-label="Run Prediction"
+            disabled={isSubmitting}
           >
-            Run Prediction <FaArrowRight className='ml-2' />
+            {isSubmitting ? 'Processing...' : 'Run Prediction'} <FaArrowRight className='ml-2' />
           </button>
         </div>
       </form>
