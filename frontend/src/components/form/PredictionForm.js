@@ -445,7 +445,7 @@ const PredictionForm = () => {
           {/* Cholesterol Level */}
           <div className='flex flex-col md:w-1/2 md:mr-2'>
             <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
-              Cholesterol Level (mg/dL):
+              Total Cholesterol (mmol/L):
             </label>
             <input
               type='number'

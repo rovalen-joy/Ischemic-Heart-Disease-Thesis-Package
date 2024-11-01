@@ -278,7 +278,7 @@ const Analytics = () => {
       'History of Stroke (%)': percentStroke,
       'Average Systolic BP': avgSystolicBP,
       'Average Diastolic BP': avgDiastolicBP,
-      'Average Cholesterol Level': avgCholesterol,
+      'Average Total Cholesterol': avgCholesterol,
     };
 
     return {
@@ -408,7 +408,7 @@ const Analytics = () => {
           {/* Average Cholesterol Level */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
             <span className="text-gray-500 font-medium mb-2">Average Cholesterol Level</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Cholesterol Level']} mg/dL</span>
+            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Total Cholesterol']} mmol/L</span>
           </div>
         </div>
       </div>
@@ -552,15 +552,15 @@ const Analytics = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
               {/* Age vs Cholesterol Level (Scatter Chart) */}
               <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="text-xl font-semibold mb-4 text-center">Age vs. Cholesterol Level</h2>
+                <h2 className="text-xl font-semibold mb-4 text-center">Age vs. Total Cholesterol</h2>
                 <ResponsiveContainer width="100%" height={300}>
                   <ScatterChart
                     margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                    aria-label="Scatter chart showing Age vs Cholesterol Level"
+                    aria-label="Scatter chart showing Age vs Total Cholesterol"
                   >
                     <CartesianGrid />
                     <XAxis type="number" dataKey="age" name="Age" unit="yrs" />
-                    <YAxis type="number" dataKey="cholesterol" name="Cholesterol" unit="mg/dL" />
+                    <YAxis type="number" dataKey="cholesterol" name="Cholesterol" unit="mmol/L" />
                     <Tooltip cursor={{ strokeDasharray: '3 3' }} />
                     <Legend />
                     <Scatter name="Patients" data={patients.flatMap(patient => 

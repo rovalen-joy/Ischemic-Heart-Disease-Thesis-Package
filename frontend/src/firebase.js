@@ -9,13 +9,15 @@ import { getFirestore } from 'firebase/firestore'
 // Your web app's Firebase configuration
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCzLAMu5dQRc0_kp6uLVLNR6NlNZebIOLI',
-  authDomain: 'ihd-prediction-system.firebaseapp.com',
-  projectId: 'ihd-prediction-system',
-  storageBucket: 'ihd-prediction-system.appspot.com',
-  messagingSenderId: '502357356443',
-  appId: '1:502357356443:web:61de42e3a0fbd2b19abb3e',
-}
+  apiKey: "AIzaSyBw6vjBqYF9j5fOdokLlOYdiuSRNfasN2A",
+  authDomain: "ihd-prediction-system-a73dc.firebaseapp.com",
+  databaseURL: "https://ihd-prediction-system-a73dc-default-rtdb.firebaseio.com",
+  projectId: "ihd-prediction-system-a73dc",
+  storageBucket: "ihd-prediction-system-a73dc.firebasestorage.app",
+  messagingSenderId: "851265186412",
+  appId: "1:851265186412:web:31b83985a25f1b70118649",
+  measurementId: "G-BVL22YDQP9"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
