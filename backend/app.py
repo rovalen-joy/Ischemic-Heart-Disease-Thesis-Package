@@ -5,7 +5,7 @@ from flask_cors import CORS
 import logging
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://ihd-prediction-system.netlify.app"}})
+CORS(app, resources={r"/*": {"origins": "https://ihdpredictionsystem.netlify.app"}})
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
