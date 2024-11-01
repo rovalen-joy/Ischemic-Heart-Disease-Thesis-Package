@@ -97,6 +97,8 @@ const PredictionForm = () => {
     });
   };
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   // Handle form submission to get prediction results
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,7 +126,7 @@ const PredictionForm = () => {
     console.log('Sending data to backend:', formattedDetails);
     try {
       const response = await axios.post(
-        'http://127.0.0.1:5000/predict',
+        '${API_URL}/predict',
         formattedDetails
       );
       console.log('Received response from backend:', response.data);
