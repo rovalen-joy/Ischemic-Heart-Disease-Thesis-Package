@@ -51,7 +51,7 @@ google-resumable-media==2.7.2
 googleapis-common-protos==1.65.0
 graphviz==0.20.3
 grpcio==1.67.1
-grpcio-status>=1.49.1,<2.0
+grpcio-status==1.62.3
 h11==0.14.0
 httpcore==1.0.5
 httplib2==0.22.0
@@ -80,7 +80,7 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.2
 matplotlib==3.7.0
 matplotlib-inline==0.1.6
-maturin
+maturin==1.7.4
 mdurl==0.1.2
 memory-profiler==0.61.0
 mistune==2.0.5
@@ -109,7 +109,7 @@ pluggy==1.5.0
 prometheus-client==0.16.0
 prompt-toolkit==3.0.36
 proto-plus==1.25.0
-protobuf>=3.20.2,<6
+protobuf==4.25.5
 psutil==5.9.4
 pure-eval==0.2.2
 pyarrow==16.0.0
@@ -131,7 +131,7 @@ python-dateutil==2.8.2
 python-docx==1.1.2
 python-json-logger==2.0.6
 pytz==2022.7.1
-#pywin32==305
+pywin32==305
 pywinpty==2.0.10
 PyYAML==6.0
 pyzmq==25.0.0
