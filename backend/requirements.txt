@@ -80,6 +80,7 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.2
 matplotlib==3.7.0
 matplotlib-inline==0.1.6
+maturin
 mdurl==0.1.2
 memory-profiler==0.61.0
 mistune==2.0.5
