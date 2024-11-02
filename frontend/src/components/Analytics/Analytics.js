@@ -32,6 +32,15 @@ import './Analytics.css';
 
 import { MdExpandMore, MdExpandLess } from 'react-icons/md';
 
+const scatterFeatures = [
+  { value: 'Age', label: 'Age (yrs)' },
+  { value: 'BMI', label: 'BMI' },
+  { value: 'Blood_Pressure_Systolic', label: 'Systolic BP (mmHg)' },
+  { value: 'Blood_Pressure_Diastolic', label: 'Diastolic BP (mmHg)' },
+  { value: 'Cholesterol_Level', label: 'Cholesterol Level (mmol/L)' },
+  { value: 'History_of_Stroke', label: 'History of Stroke' }, 
+];
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
 
 const Analytics = () => {
@@ -45,9 +54,11 @@ const Analytics = () => {
   // Collapsible states for each chart
   const [isAgeChartOpen, setIsAgeChartOpen] = useState(false);
   const [isGenderChartOpen, setIsGenderChartOpen] = useState(false);
-  const [isAgeCholesterolChartOpen, setIsAgeCholesterolChartOpen] = useState(false);
-  const [isBMISystolicChartOpen, setIsBMISystolicChartOpen] = useState(false);
-  const [isBMIDiastolicChartOpen, setIsBMIDiastolicChartOpen] = useState(false);
+  const [isBMICategoriesChartOpen, setIsBMICategoriesChartOpen] = useState(false);
+
+  // State for Scatter Plot feature selection
+  const [scatterX, setScatterX] = useState('Age');
+  const [scatterY, setScatterY] = useState('Cholesterol_Level');
 
   // Fetch patients and their records from Firestore
   useEffect(() => {
@@ -113,9 +124,10 @@ const Analytics = () => {
     // BMI Statistics
     let totalBMI = 0;
     let bmiCount = 0;
-    let highBMI = 0;
-    let normalBMI = 0;
-    let lowBMI = 0;
+    let highBMI = 0; // Obese (>30)
+    let overweightBMI = 0; // Overweight (25-29.9)
+    let normalBMI = 0; // Normal (18.5-24.9)
+    let lowBMI = 0; // Underweight (<18.5)
 
     // Risk Assessment
     let lowRisk = 0;
@@ -158,9 +170,10 @@ const Analytics = () => {
         if (bmi) {
           totalBMI += bmi;
           bmiCount += 1;
-          if (bmi > 30) highBMI += 1;
-          else if (bmi >= 18.5 && bmi <= 24.9) normalBMI += 1;
-          else if (bmi < 18.5) lowBMI += 1;
+          if (bmi > 30) highBMI += 1; // Obese
+          else if (bmi >= 25 && bmi <= 29.9) overweightBMI += 1; // Overweight
+          else if (bmi >= 18.5 && bmi <= 24.9) normalBMI += 1; // Normal
+          else if (bmi < 18.5) lowBMI += 1; // Underweight
         }
 
         // Risk Assessment
@@ -224,9 +237,10 @@ const Analytics = () => {
     const averageBMI = bmiCount === 0 ? 0 : (totalBMI / bmiCount).toFixed(2);
     const bmiData = [
       { name: 'Average BMI', value: parseFloat(averageBMI) },
-      { name: 'High BMI (>30)', value: highBMI },
-      { name: 'Normal BMI (18.5-24.9)', value: normalBMI },
-      { name: 'Low BMI (<18.5)', value: lowBMI },
+      { name: 'Obese (>30)', value: highBMI }, 
+      { name: 'Overweight (25-29.9)', value: overweightBMI },
+      { name: 'Normal (18.5-24.9)', value: normalBMI },
+      { name: 'Underweight (<18.5)', value: lowBMI }, 
     ];
 
     const riskData = [
@@ -273,17 +287,15 @@ const Analytics = () => {
     const totalPatients = patients.length;
     const avgAge = patients.reduce((acc, patient) => acc + parseInt(patient.age, 10), 0) / totalPatients || 0;
     const avgBMIVal = averageBMI;
-    const totalStroke = strokeYes + strokeNo;
-    const percentStroke = totalStroke === 0 ? 0 : ((strokeYes / totalStroke) * 100).toFixed(2);
     const avgSystolicBP = bpCount === 0 ? 0 : (totalBP_Systolic / bpCount).toFixed(2);
     const avgDiastolicBP = bpCount === 0 ? 0 : (totalBP_Diastolic / bpCount).toFixed(2);
     const avgCholesterol = cholesterolCount === 0 ? 0 : (totalCholesterol / cholesterolCount).toFixed(2);
 
     const summaryData = {
       Total_Patients: totalPatients,
-      Average_Age: avgAge.toFixed(2),
+      Average_Age: Math.round(avgAge), 
       Average_BMI: avgBMIVal,
-      'History of Stroke (%)': percentStroke,
+      'Patients with Stroke': strokeYes, 
       'Average Systolic BP': avgSystolicBP,
       'Average Diastolic BP': avgDiastolicBP,
       'Average Total Cholesterol': avgCholesterol,
@@ -301,7 +313,7 @@ const Analytics = () => {
       yearlyData,
       summaryData,
       healthMetrics: {
-        BMI: bmiData,
+        BMI: bmiData, 
         Blood_Pressure_Systolic: bpCount === 0 ? [] : [
           { name: 'Average Systolic BP', value: parseFloat(avgSystolicBP) },
         ],
@@ -323,6 +335,62 @@ const Analytics = () => {
   const handleTimeframeChange = (e) => {
     setSelectedTimeframe(e.target.value);
   };
+
+  // Handle Scatter Plot feature selection
+  const handleScatterXChange = (e) => {
+    const selectedX = e.target.value;
+    // If the selected X is currently selected in Y, reset Y
+    if (selectedX === scatterY) {
+      setScatterY('');
+    }
+    setScatterX(selectedX);
+  };
+
+  const handleScatterYChange = (e) => {
+    const selectedY = e.target.value;
+    // If the selected Y is currently selected in X, reset X
+    if (selectedY === scatterX) {
+      setScatterX('');
+    }
+    setScatterY(selectedY);
+  };
+
+  // Prepare data for dynamic scatter plot
+  const scatterData = useMemo(() => {
+    if (!patients || patients.length === 0) return [];
+
+    return patients.flatMap(patient => 
+      patient.records.map(record => {
+        const dataPoint = {};
+        dataPoint['Age'] = parseInt(patient.age, 10);
+        dataPoint['BMI'] = parseFloat(record.BMI);
+        dataPoint['Blood_Pressure_Systolic'] = parseFloat(record.blood_pressure_systolic);
+        dataPoint['Blood_Pressure_Diastolic'] = parseFloat(record.blood_pressure_diastolic);
+        dataPoint['Cholesterol_Level'] = parseFloat(record.cholesterol_level);
+        dataPoint['History_of_Stroke'] = record.history_of_stroke === 'Yes' ? 1 : 0;
+        return dataPoint;
+      })
+    ).filter(point => {
+      // Ensure selected features have valid numbers
+      return (
+        point[scatterX] !== undefined &&
+        point[scatterX] !== null &&
+        !isNaN(point[scatterX]) &&
+        point[scatterY] !== undefined &&
+        point[scatterY] !== null &&
+        !isNaN(point[scatterY])
+      );
+    });
+  }, [patients, scatterX, scatterY]);
+
+  // Generate filtered feature lists for X and Y axes 
+  const filteredScatterFeaturesX = useMemo(() => {
+    return scatterFeatures.filter(feature => feature.value !== scatterY);
+  }, [scatterY]);
+
+  const filteredScatterFeaturesY = useMemo(() => {
+    return scatterFeatures.filter(feature => feature.value !== scatterX);
+  }, [scatterX]);
 
   if (loading) {
     return (
@@ -396,10 +464,10 @@ const Analytics = () => {
               <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_BMI}</span>
             </div>
 
-            {/* History of Stroke */}
+            {/* Patients with Stroke */}
             <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">History of Stroke (%)</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['History of Stroke (%)']}%</span>
+              <span className="text-gray-500 font-medium mb-2">Patients with Stroke</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Patients with Stroke']}</span>
             </div>
 
             {/* Average Systolic BP */}
@@ -607,126 +675,109 @@ const Analytics = () => {
             {/* Health Metrics Tab */}
             <TabPanel>
               <div className="flex flex-col space-y-8 mt-4">
-                {/* Age vs Cholesterol Level (Scatter Chart) */}
+                {/* BMI Categories (Bar Chart) */}
                 <div>
                   {/* Collapsible Section for Mobile Screens */}
                   <div className="md:hidden mb-4">
                     <button
-                      onClick={() => setIsAgeCholesterolChartOpen(!isAgeCholesterolChartOpen)}
+                      onClick={() => setIsBMICategoriesChartOpen(!isBMICategoriesChartOpen)}
                       className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
                     >
-                      <span>Age vs. Total Cholesterol</span>
-                      {isAgeCholesterolChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                      <span>BMI Categories</span>
+                      {isBMICategoriesChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
                     </button>
                   </div>
 
                   {/* Content Wrapper */}
-                  <div className={`${isAgeCholesterolChartOpen ? '' : 'hidden'} md:block`}>
+                  <div className={`${isBMICategoriesChartOpen ? '' : 'hidden'} md:block`}>
                     <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Age vs. Total Cholesterol</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI Categories</h2>
                       <div className="w-full h-64 sm:h-96">
                         <ResponsiveContainer width="100%" height="100%">
-                          <ScatterChart
-                            margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                            aria-label="Scatter chart showing Age vs Total Cholesterol"
+                          <BarChart
+                            data={aggregatedData.healthMetrics.BMI.filter(item => item.name !== 'Average BMI')}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                            aria-label="Bar chart showing BMI categories of patients"
                           >
-                            <CartesianGrid />
-                            <XAxis type="number" dataKey="age" name="Age" unit="yrs" />
-                            <YAxis type="number" dataKey="cholesterol" name="Cholesterol" unit="mmol/L" />
-                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                            <Legend />
-                            <Scatter name="Patients" data={patients.flatMap(patient => 
-                              patient.records.map(record => ({
-                                age: parseInt(patient.age, 10),
-                                cholesterol: parseFloat(record.cholesterol_level),
-                              }))
-                            )} fill="#8884d8" />
-                          </ScatterChart>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis allowDecimals={false} />
+                            <Tooltip />
+                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                            <Bar dataKey="value" fill="#00717A" name="Number of Patients" />
+                          </BarChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* BMI vs Systolic BP (Scatter Chart) */}
-                <div>
-                  {/* Collapsible Section for Mobile Screens */}
-                  <div className="md:hidden mb-4">
-                    <button
-                      onClick={() => setIsBMISystolicChartOpen(!isBMISystolicChartOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
-                    >
-                      <span>BMI vs. Systolic BP</span>
-                      {isBMISystolicChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
-                    </button>
-                  </div>
+                {/* Dynamic Scatter Plot Selection */}
+                <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                  <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Custom Scatter Plot</h2>
+                  <div className="flex flex-col sm:flex-row items-center justify-center mb-4">
+                    {/* X-Axis Selection */}
+                    <div className="flex flex-col mr-4 mb-4 sm:mb-0">
+                      <label htmlFor="scatterX" className="mb-2 text-gray-700 font-medium">Select X-Axis:</label>
+                      <select
+                        id="scatterX"
+                        name="scatterX"
+                        value={scatterX}
+                        onChange={handleScatterXChange}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A]"
+                        aria-label="Select X-Axis for Scatter Plot"
+                      >
+                        <option value="" disabled>Select X-Axis</option>
+                        {filteredScatterFeaturesX.map(feature => (
+                          <option key={feature.value} value={feature.value}>{feature.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                  {/* Content Wrapper */}
-                  <div className={`${isBMISystolicChartOpen ? '' : 'hidden'} md:block`}>
-                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI vs. Systolic BP</h2>
-                      <div className="w-full h-64 sm:h-96">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <ScatterChart
-                            margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                            aria-label="Scatter chart showing BMI vs Systolic Blood Pressure"
-                          >
-                            <CartesianGrid />
-                            <XAxis type="number" dataKey="bmi" name="BMI" />
-                            <YAxis type="number" dataKey="systolic" name="Systolic BP" unit="mmHg" />
-                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                            <Legend />
-                            <Scatter name="Patients" data={patients.flatMap(patient => 
-                              patient.records.map(record => ({
-                                bmi: parseFloat(record.BMI),
-                                systolic: parseFloat(record.blood_pressure_systolic),
-                              }))
-                            )} fill="#82ca9d" />
-                          </ScatterChart>
-                        </ResponsiveContainer>
-                      </div>
+                    {/* Y-Axis Selection */}
+                    <div className="flex flex-col">
+                      <label htmlFor="scatterY" className="mb-2 text-gray-700 font-medium">Select Y-Axis:</label>
+                      <select
+                        id="scatterY"
+                        name="scatterY"
+                        value={scatterY}
+                        onChange={handleScatterYChange}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A]"
+                        aria-label="Select Y-Axis for Scatter Plot"
+                      >
+                        <option value="" disabled>Select Y-Axis</option>
+                        {filteredScatterFeaturesY.map(feature => (
+                          <option key={feature.value} value={feature.value}>{feature.label}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                </div>
 
-                {/* BMI vs Diastolic BP (Scatter Chart) */}
-                <div>
-                  {/* Collapsible Section for Mobile Screens */}
-                  <div className="md:hidden mb-4">
-                    <button
-                      onClick={() => setIsBMIDiastolicChartOpen(!isBMIDiastolicChartOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
-                    >
-                      <span>BMI vs. Diastolic BP</span>
-                      {isBMIDiastolicChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
-                    </button>
-                  </div>
-
-                  {/* Content Wrapper */}
-                  <div className={`${isBMIDiastolicChartOpen ? '' : 'hidden'} md:block`}>
-                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI vs. Diastolic BP</h2>
-                      <div className="w-full h-64 sm:h-96">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <ScatterChart
-                            margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                            aria-label="Scatter chart showing BMI vs Diastolic Blood Pressure"
-                          >
-                            <CartesianGrid />
-                            <XAxis type="number" dataKey="bmi" name="BMI" />
-                            <YAxis type="number" dataKey="diastolic" name="Diastolic BP" unit="mmHg" />
-                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                            <Legend />
-                            <Scatter name="Patients" data={patients.flatMap(patient => 
-                              patient.records.map(record => ({
-                                bmi: parseFloat(record.BMI),
-                                diastolic: parseFloat(record.blood_pressure_diastolic),
-                              }))
-                            )} fill="#FF8042" />
-                          </ScatterChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
+                  {/* Scatter Plot */}
+                  <div className="w-full h-64 sm:h-96">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ScatterChart
+                        margin={{ top: 20, right: 30, bottom: 40, left: 20 }} // Increased bottom margin to accommodate labels
+                        aria-label={`Scatter chart showing ${scatterX} vs ${scatterY}`}
+                      >
+                        <CartesianGrid />
+                        <XAxis
+                          type="number"
+                          dataKey={scatterX}
+                          name={scatterX}
+                          label={{ value: scatterFeatures.find(f => f.value === scatterX)?.label, position: 'insideBottom', offset: -10 }}
+                        />
+                        <YAxis
+                          type="number"
+                          dataKey={scatterY}
+                          name={scatterY}
+                          label={{ value: scatterFeatures.find(f => f.value === scatterY)?.label, angle: -90, position: 'insideLeft', offset: -10 }}
+                        />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px', top: 0, right: 0 }} /> {/* Positioned to top-right with spacing */}
+                        <Scatter name="Patients" data={scatterData} fill="#8884d8" />
+                      </ScatterChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               </div>
