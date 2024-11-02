@@ -1,4 +1,4 @@
-import React, { useRef, useState} from 'react';
+import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import ModalSave from '../Modal/ModalSave';
 import ModalNew from '../Modal/ModalNew';
@@ -270,9 +270,9 @@ const PredictionForm = () => {
   // If the user is not authenticated, prompt to log in
   if (!user) {
     return (
-      <div className='flex justify-center items-center h-screen'>
-        <div className='text-center'>
-          <h2 className='text-lg font-bold text-gray-700'>
+      <div className='flex justify-center items-center h-screen px-4 sm:px-6'>
+        <div className='text-center max-w-md'>
+          <h2 className='text-lg sm:text-xl md:text-2xl font-bold text-gray-700 mb-4'>
             Please log in to use the Prediction Form.
           </h2>
         </div>
@@ -282,87 +282,92 @@ const PredictionForm = () => {
 
   // Render Step 1: Personal Details
   const renderStepOne = () => (
-    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6'>
+    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6 sm:px-8 sm:py-8'>
       <div className='flex items-center mb-4'>
         <FaUserMd className='text-[#00717A] mr-2 text-xl' />
-        <span className='text-[#00717A] font-bold text-lg'>Step 1: Patient's Personal Details</span>
+        <span className='text-[#00717A] font-bold text-lg sm:text-xl'>Step 1: Patient's Personal Details</span>
       </div>
       <hr className='border-gray-300 my-4' />
-      <p className='text-gray-600 mb-4'>
+      <p className='text-gray-600 mb-4 text-sm sm:text-base'>
         Please enter the patient's personal information to proceed to the medical details.
       </p>
       <form
-        className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-6'
+        className='mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'
       >
-        {/* Last Name */}
-        <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
-            Patient's Last Name:
-          </label>
-          <input
-            type='text'
-            className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
-            name='lastname'
-            value={details.lastname}
-            onChange={handleFormChange}
-            required
-            placeholder='Enter last name'
-          />
+        {/* Last Name and First Name */}
+        <div className='flex flex-col sm:flex-row sm:col-span-2 gap-4 sm:gap-6'>
+          {/* Last Name */}
+          <div className='flex flex-col sm:w-1/2'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
+              Patient's Last Name:
+            </label>
+            <input
+              type='text'
+              className='bg-gray-100 h-12 sm:h-10 rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              name='lastname'
+              value={details.lastname}
+              onChange={handleFormChange}
+              required
+              placeholder='Enter last name'
+            />
+          </div>
+
+          {/* First Name */}
+          <div className='flex flex-col sm:w-1/2'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
+              Patient's First Name:
+            </label>
+            <input
+              type='text'
+              className='bg-gray-100 h-12 sm:h-10 rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              name='firstname'
+              value={details.firstname}
+              onChange={handleFormChange}
+              required
+              placeholder='Enter first name'
+            />
+          </div>
         </div>
 
-        {/* First Name */}
-        <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
-            Patient's First Name:
-          </label>
-          <input
-            type='text'
-            className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
-            name='firstname'
-            value={details.firstname}
-            onChange={handleFormChange}
-            required
-            placeholder='Enter first name'
-          />
-        </div>
-
-        {/* Age */}
-        <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
-            Patient's Age:
-          </label>
-          <input
-            type='number'
-            min='0'
-            className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
-            name='age'
-            value={details.age}
-            onChange={handleFormChange}
-            required
-            placeholder='Enter age'
-          />
-        </div>
-
-        {/* Sex */}
-        <div className='flex flex-col'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>Patient's Sex:</label>
-          <select
-            className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
-            onChange={handleFormChange}
-            required
-            name='sex'
-            value={details.sex}
-          >
-            <option value='' disabled>
-              Select
-            </option>
-            <option value='Male'>Male</option>
-            <option value='Female'>Female</option>
-          </select>
+        {/* Age and Sex */}
+        <div className='flex flex-col sm:flex-row sm:col-span-2 gap-4 sm:gap-6'>
+          {/* Age */}
+          <div className='flex flex-col sm:w-1/2'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
+              Patient's Age:
+            </label>
+            <input
+              type='number'
+              min='0'
+              className='bg-gray-100 h-12 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              name='age'
+              value={details.age}
+              onChange={handleFormChange}
+              required
+              placeholder='Enter age'
+            />
+          </div>
+          {/* Sex */}
+          <div className='flex flex-col sm:w-1/2'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>Patient's Sex:</label>
+            <select
+              className='bg-gray-100 h-12 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              onChange={handleFormChange}
+              required
+              name='sex'
+              value={details.sex}
+            >
+              <option value='' disabled>
+                Select
+              </option>
+              <option value='Male'>Male</option>
+              <option value='Female'>Female</option>
+            </select>
+          </div>
         </div>
 
         {/* Next Button */}
-        <div className='flex justify-end col-span-1 md:col-span-2'>
+        <div className='flex justify-end col-span-1 sm:col-span-2'>
           <button
             type='button'
             onClick={() => {
@@ -377,7 +382,7 @@ const PredictionForm = () => {
               }
               setCurrentStep(2);
             }}
-            className='bg-[#00717A] text-white font-semibold px-6 py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200'
+            className='bg-[#00717A] text-white font-semibold px-6 py-3 sm:px-6 sm:py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200 w-full sm:w-auto'
             aria-label="Proceed to Medical Details"
           >
             Next <FaArrowRight className='ml-2' />
@@ -389,72 +394,66 @@ const PredictionForm = () => {
 
   // Render Step 2: Medical Details
   const renderStepTwo = () => (
-    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6'>
+    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-6 sm:px-8 py-6 sm:py-8'>
       <div className='flex items-center mb-4'>
         <FaHeart className='text-[#00717A] mr-2 text-xl' />
-        <span className='text-[#00717A] font-bold text-lg'>Step 2: Patient's Medical Details</span>
+        <span className='text-[#00717A] font-bold text-lg sm:text-xl'>Step 2: Patient's Medical Details</span>
       </div>
       <hr className='border-gray-300 my-4' />
-      <p className='text-gray-600 mb-4'>
+      <p className='text-gray-600 mb-4 text-sm sm:text-base'>
         Please provide the patient's medical information to receive an accurate prediction.
       </p>
       <form
-        className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-6'
+        className='mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'
         onSubmit={handleSubmit}
         ref={formRef}
       >
         {/* Blood Pressure */}
-        <div className='flex flex-col md:col-span-2'>
-          <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
-            Blood Pressure (mm Hg):
-          </label>
-          <div className='flex items-start'>
-            <div className='flex flex-col w-1/2 mr-2'>
-              <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
-                Systolic
-              </label>
-              <input
-                type='number'
-                min='0'
-                className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
-                name='blood_pressure_systolic'
-                value={details.blood_pressure_systolic}
-                onChange={handleFormChange}
-                required
-                placeholder='Systolic'
-              />
-            </div>
-            <span className='text-gray-700 font-semibold mx-2 mt-8'>/</span>
-            <div className='flex flex-col w-1/2 ml-2'>
-              <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
-                Diastolic
-              </label>
-              <input
-                type='number'
-                min='0'
-                className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
-                name='blood_pressure_diastolic'
-                value={details.blood_pressure_diastolic}
-                onChange={handleFormChange}
-                required
-                placeholder='Diastolic'
-              />
-            </div>
+        <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 items-center col-span-1 sm:col-span-2'>
+          <div className='flex flex-col sm:w-1/2 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
+              Systolic (mm Hg):
+            </label>
+            <input
+              type='number'
+              min='0'
+              className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              name='blood_pressure_systolic'
+              value={details.blood_pressure_systolic}
+              onChange={handleFormChange}
+              required
+              placeholder='Systolic'
+            />
+          </div>
+          <div className='flex flex-col sm:w-1/2 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
+              Diastolic (mm Hg):
+            </label>
+            <input
+              type='number'
+              min='0'
+              className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              name='blood_pressure_diastolic'
+              value={details.blood_pressure_diastolic}
+              onChange={handleFormChange}
+              required
+              placeholder='Diastolic'
+            />
           </div>
         </div>
 
         {/* Cholesterol Level and History of Stroke */}
-        <div className='flex flex-col md:flex-row md:col-span-2'>
+        <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 col-span-1 sm:col-span-2'>
           {/* Cholesterol Level */}
-          <div className='flex flex-col md:w-1/2 md:mr-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
+          <div className='flex flex-col sm:w-1/2 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               Total Cholesterol (mmol/L):
             </label>
             <input
               type='number'
               min='0'
               step='0.01'
-              className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='cholesterol_level'
               value={details.cholesterol_level}
               onChange={handleFormChange}
@@ -463,12 +462,12 @@ const PredictionForm = () => {
             />
           </div>
           {/* History of Stroke */}
-          <div className='flex flex-col md:w-1/2 md:ml-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
+          <div className='flex flex-col sm:w-1/2 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               History of Stroke:
             </label>
             <select
-              className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='history_of_stroke'
               value={details.history_of_stroke}
               onChange={handleFormChange}
@@ -484,17 +483,17 @@ const PredictionForm = () => {
         </div>
 
         {/* Weight, Height, and BMI */}
-        <div className='flex flex-col md:flex-row md:col-span-2'>
+        <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 col-span-1 sm:col-span-2'>
           {/* Weight */}
-          <div className='flex flex-col md:w-1/3 md:mr-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
+          <div className='flex flex-col sm:w-1/3 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               Weight (kg):
             </label>
             <input
               type='number'
               min='0'
               step='0.1'
-              className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='weight'
               value={details.weight}
               onChange={handleFormChange}
@@ -503,15 +502,15 @@ const PredictionForm = () => {
             />
           </div>
           {/* Height */}
-          <div className='flex flex-col md:w-1/3 md:mx-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
+          <div className='flex flex-col sm:w-1/3 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               Height (cm):
             </label>
             <input
               type='number'
               min='0'
               step='0.1'
-              className='bg-gray-100 h-10 rounded-sm px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00717A]'
+              className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='height'
               value={details.height}
               onChange={handleFormChange}
@@ -520,13 +519,13 @@ const PredictionForm = () => {
             />
           </div>
           {/* BMI */}
-          <div className='flex flex-col md:w-1/3 md:ml-2'>
-            <label className='text-gray-700 font-semibold text-sm mb-1'style={{ textAlign: 'left' }}>
+          <div className='flex flex-col sm:w-1/3 w-full'>
+            <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               BMI (kg/m²):
             </label>
             <input
               type='text'
-              className='bg-gray-200 h-10 rounded-sm px-3 text-sm focus:outline-none'
+              className='bg-gray-200 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none'
               name='BMI'
               value={details.BMI}
               readOnly
@@ -535,23 +534,22 @@ const PredictionForm = () => {
           </div>
         </div>
 
-        {/* Back Button */}
-        <div className='flex justify-start col-span-1 md:col-span-2'>
+        {/* Buttons */}
+        <div className='flex flex-col sm:flex-row sm:justify-between col-span-1 sm:col-span-2 mt-4 gap-4'>
+          {/* Back Button */}
           <button
             type='button'
             onClick={() => setCurrentStep(1)}
-            className='bg-[#00717A] text-white font-semibold px-6 py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200'
+            className='bg-[#00717A] text-white font-semibold px-6 py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200 w-full sm:w-auto'
             aria-label="Go Back to Personal Details"
           >
             <FaArrowLeft className='mr-2' /> Back
           </button>
-        </div>
 
-        {/* Submit Button */}
-        <div className='flex justify-end col-span-1 md:col-span-2'>
+          {/* Submit Button */}
           <button
             type='submit'
-            className='bg-[#00717A] text-white font-semibold px-6 py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200'
+            className='bg-[#00717A] text-white font-semibold px-6 py-2 rounded-md hover:bg-[#005f61] flex items-center transition-colors duration-200 w-full sm:w-auto'
             aria-label="Run Prediction"
             disabled={isSubmitting}
           >
@@ -564,23 +562,23 @@ const PredictionForm = () => {
 
   // Render Step 3: Prediction Results
   const renderStepThree = () => (
-    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6'>
+    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-6 py-6 sm:px-8 sm:py-8'>
       <div className='flex items-center mb-4'>
         <FaCheckCircle className='text-[#28a745] mr-2 text-xl' />
-        <span className='text-[#28a745] font-bold text-lg'>Step 3: Prediction Results</span>
+        <span className='text-[#28a745] font-bold text-lg sm:text-xl'>Step 3: Prediction Results</span>
       </div>
       <hr className='border-gray-300 my-4' />
-      <div className='flex items-center mb-6'>
-        <FaHeart className='text-[#00717A] mr-2 text-xl' />
-        <span className='text-gray-700 font-medium text-lg'>
+      <div className='flex items-center mb-6 flex-col sm:flex-row sm:items-center'>
+        <FaHeart className='text-[#00717A] mr-2 text-xl mb-2 sm:mb-0' />
+        <span className='text-gray-700 font-medium text-lg sm:text-xl text-center sm:text-left'>
           The patient is <strong>{results.prediction}</strong> to Ischemic Heart Disease with a risk percentage of <strong>{(results.percentage).toFixed(2)}%</strong>.
         </span>
       </div>
-      <div className='flex justify-end gap-4'>
+      <div className='flex flex-col sm:flex-row justify-end gap-4'>
         <button
           onClick={() => setModalSave(true)}
           type='button'
-          className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200'
+          className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 sm:px-6 sm:py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200 w-full sm:w-auto'
           aria-label="Save Prediction"
         >
           Save
@@ -588,7 +586,7 @@ const PredictionForm = () => {
         <button
           onClick={() => setModalNew(true)}
           type='button'
-          className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200'
+          className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 sm:px-6 sm:py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200 w-full sm:w-auto'
           aria-label="Enter New Data"
         >
           Enter New Data
@@ -598,37 +596,37 @@ const PredictionForm = () => {
   );
 
   return (
-    <div className='flex justify-center flex-col gap-6 mt-4 pt-6 pb-10 px-4 md:px-10 lg:px-20'>
+    <div className='flex justify-center flex-col gap-6 mt-4 pt-6 pb-10 px-4 sm:px-6 md:px-10 lg:px-20'>
       {/* Header */}
       <div className='flex justify-center'>
-        <h1 className='text-lg md:text-2xl lg:text-4xl font-bold text-center mb-1 mt-1 text-[#00717A] uppercase'>
+        <h1 className='text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2 mt-2 text-[#00717A] uppercase'>
           ISCHEMIC HEART DISEASE PREDICTION
         </h1>
       </div>
 
       {/* Instruction Text */}
-      <div className='text-center'>
-        <p className='text-gray-600 text-sm md:text-base'>
+      <div className='text-center px-2 sm:px-4'>
+        <p className='text-gray-600 text-sm sm:text-base'>
           Please complete the form below to receive a prediction on the patient's risk for Ischemic Heart Disease. The form is divided into three steps: Personal Details, Medical Details, and Prediction Results. Ensure all required fields are filled out accurately.
         </p>
       </div>
 
       {/* Progress Indicator */}
-      <div className='flex justify-center mb-6'>
-        <div className='flex items-center'>
+      <div className='flex justify-center mb-6 px-2 sm:px-4'>
+        <div className='flex items-center space-x-2 sm:space-x-4'>
           {/* Step 1 */}
           <div className='flex items-center'>
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep === 1 ? 'bg-[#00717A] text-white' : 'bg-gray-400 text-white'}`}>
               <FaUserMd />
             </div>
-            <div className={`w-16 h-1 ${currentStep > 1 ? 'bg-[#00717A]' : 'bg-gray-400'}`}></div>
+            <div className={`w-8 sm:w-16 h-1 ${currentStep > 1 ? 'bg-[#00717A]' : 'bg-gray-400'}`}></div>
           </div>
           {/* Step 2 */}
           <div className='flex items-center'>
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep === 2 ? 'bg-[#00717A] text-white' : 'bg-gray-400 text-white'}`}>
               <FaHeart />
             </div>
-            <div className={`w-16 h-1 ${currentStep > 2 ? 'bg-[#00717A]' : 'bg-gray-400'}`}></div>
+            <div className={`w-8 sm:w-16 h-1 ${currentStep > 2 ? 'bg-[#00717A]' : 'bg-gray-400'}`}></div>
           </div>
           {/* Step 3 */}
           <div className='flex items-center'>

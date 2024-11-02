@@ -30,6 +30,8 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css'; 
 import './Analytics.css'; 
 
+import { MdExpandMore, MdExpandLess } from 'react-icons/md';
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
 
 const Analytics = () => {
@@ -40,6 +42,12 @@ const Analytics = () => {
   // Timeframe Selection
   const [selectedTimeframe, setSelectedTimeframe] = useState('Month'); // Default timeframe
 
+  // Collapsible states for each chart
+  const [isAgeChartOpen, setIsAgeChartOpen] = useState(false);
+  const [isGenderChartOpen, setIsGenderChartOpen] = useState(false);
+  const [isAgeCholesterolChartOpen, setIsAgeCholesterolChartOpen] = useState(false);
+  const [isBMISystolicChartOpen, setIsBMISystolicChartOpen] = useState(false);
+  const [isBMIDiastolicChartOpen, setIsBMIDiastolicChartOpen] = useState(false);
 
   // Fetch patients and their records from Firestore
   useEffect(() => {
@@ -283,7 +291,7 @@ const Analytics = () => {
 
     return {
       ageData,
-      genderData, // Included genderData
+      genderData,
       bmiData,
       riskData,
       trendData: trendArray,
@@ -357,274 +365,376 @@ const Analytics = () => {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen pb-8">
       {/* Header */}
-      <div className="container p-6">
-        <h1 className="text-lg md:text-2xl lg:text-4xl font-bold text-center mb-1 mt-1 text-[#00717A] uppercase">Patient Analytics Dashboard</h1>
+      <div className="p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-4 text-[#00717A] uppercase">Patient Analytics Dashboard</h1>
       </div>
 
       {/* Summary Report */}
-      <div className="summary-container container mb-16 bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Summary Report</h2>
+      <div className="container mx-auto mb-8 px-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+          <h2 className="text-lg sm:text-2xl font-semibold mb-4 text-center">Summary Report</h2>
 
-        {/* Summary Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Total Patients - Full Width */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center md:col-span-3">
-            <span className="text-gray-500 font-medium mb-2">Total Patients</span>
-            <span className="text-3xl font-bold text-[#00717A]">{aggregatedData.summaryData.Total_Patients}</span>
-          </div>
+          {/* Summary Metrics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Total Patients - Full Width */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center sm:col-span-2 md:col-span-3">
+              <span className="text-gray-500 font-medium mb-2">Total Patients</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#00717A]">{aggregatedData.summaryData.Total_Patients}</span>
+            </div>
 
-          {/* Average Age */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-            <span className="text-gray-500 font-medium mb-2">Average Age</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_Age} yrs</span>
-          </div>
+            {/* Average Age */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
+              <span className="text-gray-500 font-medium mb-2">Average Age</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_Age} yrs</span>
+            </div>
 
-          {/* Average BMI */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-            <span className="text-gray-500 font-medium mb-2">Average BMI</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_BMI}</span>
-          </div>
+            {/* Average BMI */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
+              <span className="text-gray-500 font-medium mb-2">Average BMI</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_BMI}</span>
+            </div>
 
-          {/* History of Stroke */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-            <span className="text-gray-500 font-medium mb-2">History of Stroke (%)</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['History of Stroke (%)']}%</span>
-          </div>
+            {/* History of Stroke */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
+              <span className="text-gray-500 font-medium mb-2">History of Stroke (%)</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['History of Stroke (%)']}%</span>
+            </div>
 
-          {/* Average Systolic BP */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-            <span className="text-gray-500 font-medium mb-2">Average Systolic BP</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Systolic BP']} mmHg</span>
-          </div>
+            {/* Average Systolic BP */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
+              <span className="text-gray-500 font-medium mb-2">Average Systolic BP</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Systolic BP']} mmHg</span>
+            </div>
 
-          {/* Average Diastolic BP */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-            <span className="text-gray-500 font-medium mb-2">Average Diastolic BP</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Diastolic BP']} mmHg</span>
-          </div>
+            {/* Average Diastolic BP */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
+              <span className="text-gray-500 font-medium mb-2">Average Diastolic BP</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Diastolic BP']} mmHg</span>
+            </div>
 
-          {/* Average Cholesterol Level */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-            <span className="text-gray-500 font-medium mb-2">Average Cholesterol Level</span>
-            <span className="text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Total Cholesterol']} mmol/L</span>
+            {/* Average Cholesterol Level */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
+              <span className="text-gray-500 font-medium mb-2">Average Cholesterol Level</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Total Cholesterol']} mmol/L</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="section-spacing bg-gray-100 mb-16"></div>
+      {/* Added Space Between Summary and Tabs */}
+      <div className="mt-8"></div>
+
       {/* Tabs Section */}
-      <div className="tabs-container container bg-white p-6 rounded-lg shadow-md m-16">
-        <Tabs>
-          <TabList className="tab-list custom-shadow">
-            <Tab className="tab">Patient Overview</Tab>
-            <Tab className="tab">Demographics</Tab>
-            <Tab className="tab">Health Metrics</Tab>
-          </TabList>
+      <div className="container mx-auto px-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <Tabs>
+            <TabList className="flex flex-wrap justify-center space-x-2 overflow-x-auto">
+              <Tab className="tab px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]">
+                Patient Overview
+              </Tab>
+              <Tab className="tab px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]">
+                Demographics
+              </Tab>
+              <Tab className="tab px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]">
+                Health Metrics
+              </Tab>
+            </TabList>
 
-          {/* Patient Overview Tab */}
-          <TabPanel>
-            {/* Timeframe Selection */}
-            <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-end">
-              <label htmlFor="timeframe" className="mr-2 text-gray-700 font-medium mt-2">
-                Select Timeframe:
-              </label>
-              <select
-                id="timeframe"
-                name="timeframe"
-                value={selectedTimeframe}
-                onChange={handleTimeframeChange}
-                className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A] mt-4"
-                aria-label="Select Timeframe for Patient Overview"
-              >
-                <option value="Day">Day</option>
-                <option value="Week">Week</option>
-                <option value="Month">Month</option>
-                <option value="Year">Year</option>
-              </select>
-            </div>
-
-            {/* Patient Overview Chart */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-              <h2 className="text-xl font-semibold mb-4 text-center">Patient Overview</h2>
-              <ResponsiveContainer width="100%" height={400}>
-                {selectedTimeframe === 'Day' && (
-                  <LineChart data={aggregatedData.dailyData} aria-label="Line chart showing patient counts per day">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tickFormatter={date => date.slice(5)} />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                    <Line type="monotone" dataKey="count" stroke="#00717A" name="Patients" />
-                  </LineChart>
-                )}
-                {selectedTimeframe === 'Week' && (
-                  <LineChart data={aggregatedData.weeklyData} aria-label="Line chart showing patient counts per week">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" tickFormatter={week => week.replace('W', 'Week ')} />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                    <Line type="monotone" dataKey="count" stroke="#00C49F" name="Patients" />
-                  </LineChart>
-                )}
-                {selectedTimeframe === 'Month' && (
-                  <LineChart data={aggregatedData.monthlyData} aria-label="Line chart showing patient counts per month">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                    <Line type="monotone" dataKey="count" stroke="#FF8042" name="Patients" />
-                  </LineChart>
-                )}
-                {selectedTimeframe === 'Year' && (
-                  <LineChart data={aggregatedData.yearlyData} aria-label="Line chart showing patient counts per year">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                    <Line type="monotone" dataKey="count" stroke="#FFBB28" name="Patients" />
-                  </LineChart>
-                )}
-              </ResponsiveContainer>
-            </div>
-          </TabPanel>
-
-          {/* Demographics Tab */}
-          <TabPanel>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-              {/* Age Distribution (Bar Chart) */}
-              <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="text-xl font-semibold mb-4 text-center">Age Distribution</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={aggregatedData.ageData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
-                    aria-label="Bar chart showing age distribution of patients"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="ageRange" />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                    <Bar dataKey="count" fill="#00717A" name="Number of Patients" />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Patient Overview Tab */}
+            <TabPanel>
+              {/* Timeframe Selection */}
+              <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-end">
+                <label htmlFor="timeframe" className="mr-2 text-gray-700 font-medium mt-2 sm:mt-0">
+                  Select Timeframe:
+                </label>
+                <select
+                  id="timeframe"
+                  name="timeframe"
+                  value={selectedTimeframe}
+                  onChange={handleTimeframeChange}
+                  className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A] mt-2 sm:mt-0"
+                  aria-label="Select Timeframe for Patient Overview"
+                >
+                  <option value="Day">Day</option>
+                  <option value="Week">Week</option>
+                  <option value="Month">Month</option>
+                  <option value="Year">Year</option>
+                </select>
               </div>
 
-              {/* Gender Ratio (Pie Chart) */}
-              <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="text-xl font-semibold mb-4 text-center">Gender Ratio</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart aria-label="Pie chart showing gender ratio of patients">
-                    <Pie
-                      data={aggregatedData.genderData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={100}
-                      fill="#82ca9d"
-                      dataKey="value"
-                      nameKey="name"
+              {/* Patient Overview Chart */}
+              <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Patient Overview</h2>
+                <div className="w-full h-64 sm:h-96">
+                  <ResponsiveContainer width="100%" height="100%">
+                    {selectedTimeframe === 'Day' && (
+                      <LineChart data={aggregatedData.dailyData} aria-label="Line chart showing patient counts per day">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tickFormatter={date => date.slice(5)} />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                        <Line type="monotone" dataKey="count" stroke="#00717A" name="Patients" />
+                      </LineChart>
+                    )}
+                    {selectedTimeframe === 'Week' && (
+                      <LineChart data={aggregatedData.weeklyData} aria-label="Line chart showing patient counts per week">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="week" tickFormatter={week => week.replace('W', 'Week ')} />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                        <Line type="monotone" dataKey="count" stroke="#00C49F" name="Patients" />
+                      </LineChart>
+                    )}
+                    {selectedTimeframe === 'Month' && (
+                      <LineChart data={aggregatedData.monthlyData} aria-label="Line chart showing patient counts per month">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                        <Line type="monotone" dataKey="count" stroke="#FF8042" name="Patients" />
+                      </LineChart>
+                    )}
+                    {selectedTimeframe === 'Year' && (
+                      <LineChart data={aggregatedData.yearlyData} aria-label="Line chart showing patient counts per year">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="year" />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                        <Line type="monotone" dataKey="count" stroke="#FFBB28" name="Patients" />
+                      </LineChart>
+                    )}
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </TabPanel>
+
+            {/* Demographics Tab */}
+            <TabPanel>
+              <div className="flex flex-col space-y-8 mt-4">
+                {/* Age Distribution (Bar Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsAgeChartOpen(!isAgeChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
                     >
-                      {aggregatedData.genderData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                          aria-label={`${entry.name}: ${entry.value}`}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </TabPanel>
+                      <span>Age Distribution</span>
+                      {isAgeChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
 
-          {/* Health Metrics Tab */}
-          <TabPanel>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
-              {/* Age vs Cholesterol Level (Scatter Chart) */}
-              <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="text-xl font-semibold mb-4 text-center">Age vs. Total Cholesterol</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <ScatterChart
-                    margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                    aria-label="Scatter chart showing Age vs Total Cholesterol"
-                  >
-                    <CartesianGrid />
-                    <XAxis type="number" dataKey="age" name="Age" unit="yrs" />
-                    <YAxis type="number" dataKey="cholesterol" name="Cholesterol" unit="mmol/L" />
-                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                    <Legend />
-                    <Scatter name="Patients" data={patients.flatMap(patient => 
-                      patient.records.map(record => ({
-                        age: parseInt(patient.age, 10),
-                        cholesterol: parseFloat(record.cholesterol_level),
-                      }))
-                    )} fill="#8884d8" />
-                  </ScatterChart>
-                </ResponsiveContainer>
-              </div>
+                  {/* Content Wrapper */}
+                  <div className={`${isAgeChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Age Distribution</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={aggregatedData.ageData}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                            aria-label="Bar chart showing age distribution of patients"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="ageRange" />
+                            <YAxis allowDecimals={false} />
+                            <Tooltip />
+                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                            <Bar dataKey="count" fill="#00717A" name="Number of Patients" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              {/* BMI vs Systolic BP (Scatter Chart) */}
-              <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="text-xl font-semibold mb-4 text-center">BMI vs. Systolic BP</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <ScatterChart
-                    margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                    aria-label="Scatter chart showing BMI vs Systolic Blood Pressure"
-                  >
-                    <CartesianGrid />
-                    <XAxis type="number" dataKey="bmi" name="BMI" />
-                    <YAxis type="number" dataKey="systolic" name="Systolic BP" unit="mmHg" />
-                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                    <Legend />
-                    <Scatter name="Patients" data={patients.flatMap(patient => 
-                      patient.records.map(record => ({
-                        bmi: parseFloat(record.BMI),
-                        systolic: parseFloat(record.blood_pressure_systolic),
-                      }))
-                    )} fill="#82ca9d" />
-                  </ScatterChart>
-                </ResponsiveContainer>
-              </div>
+                {/* Gender Ratio (Pie Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsGenderChartOpen(!isGenderChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                    >
+                      <span>Gender Ratio</span>
+                      {isGenderChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
 
-              {/* BMI vs Diastolic BP (Scatter Chart) */}
-              <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="text-xl font-semibold mb-4 text-center">BMI vs. Diastolic BP</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <ScatterChart
-                    margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                    aria-label="Scatter chart showing BMI vs Diastolic Blood Pressure"
-                  >
-                    <CartesianGrid />
-                    <XAxis type="number" dataKey="bmi" name="BMI" />
-                    <YAxis type="number" dataKey="diastolic" name="Diastolic BP" unit="mmHg" />
-                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                    <Legend />
-                    <Scatter name="Patients" data={patients.flatMap(patient => 
-                      patient.records.map(record => ({
-                        bmi: parseFloat(record.BMI),
-                        diastolic: parseFloat(record.blood_pressure_diastolic),
-                      }))
-                    )} fill="#FF8042" />
-                  </ScatterChart>
-                </ResponsiveContainer>
+                  {/* Content Wrapper */}
+                  <div className={`${isGenderChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Gender Ratio</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart aria-label="Pie chart showing gender ratio of patients">
+                            <Pie
+                              data={aggregatedData.genderData}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={true}
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                              outerRadius={80}
+                              fill="#82ca9d"
+                              dataKey="value"
+                              nameKey="name"
+                            >
+                              {aggregatedData.genderData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS[index % COLORS.length]}
+                                  aria-label={`${entry.name}: ${entry.value}`}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </TabPanel>
-        </Tabs>
+            </TabPanel>
+
+            {/* Health Metrics Tab */}
+            <TabPanel>
+              <div className="flex flex-col space-y-8 mt-4">
+                {/* Age vs Cholesterol Level (Scatter Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsAgeCholesterolChartOpen(!isAgeCholesterolChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                    >
+                      <span>Age vs. Total Cholesterol</span>
+                      {isAgeCholesterolChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
+
+                  {/* Content Wrapper */}
+                  <div className={`${isAgeCholesterolChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Age vs. Total Cholesterol</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ScatterChart
+                            margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
+                            aria-label="Scatter chart showing Age vs Total Cholesterol"
+                          >
+                            <CartesianGrid />
+                            <XAxis type="number" dataKey="age" name="Age" unit="yrs" />
+                            <YAxis type="number" dataKey="cholesterol" name="Cholesterol" unit="mmol/L" />
+                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                            <Legend />
+                            <Scatter name="Patients" data={patients.flatMap(patient => 
+                              patient.records.map(record => ({
+                                age: parseInt(patient.age, 10),
+                                cholesterol: parseFloat(record.cholesterol_level),
+                              }))
+                            )} fill="#8884d8" />
+                          </ScatterChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BMI vs Systolic BP (Scatter Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsBMISystolicChartOpen(!isBMISystolicChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                    >
+                      <span>BMI vs. Systolic BP</span>
+                      {isBMISystolicChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
+
+                  {/* Content Wrapper */}
+                  <div className={`${isBMISystolicChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI vs. Systolic BP</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ScatterChart
+                            margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
+                            aria-label="Scatter chart showing BMI vs Systolic Blood Pressure"
+                          >
+                            <CartesianGrid />
+                            <XAxis type="number" dataKey="bmi" name="BMI" />
+                            <YAxis type="number" dataKey="systolic" name="Systolic BP" unit="mmHg" />
+                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                            <Legend />
+                            <Scatter name="Patients" data={patients.flatMap(patient => 
+                              patient.records.map(record => ({
+                                bmi: parseFloat(record.BMI),
+                                systolic: parseFloat(record.blood_pressure_systolic),
+                              }))
+                            )} fill="#82ca9d" />
+                          </ScatterChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BMI vs Diastolic BP (Scatter Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsBMIDiastolicChartOpen(!isBMIDiastolicChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                    >
+                      <span>BMI vs. Diastolic BP</span>
+                      {isBMIDiastolicChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
+
+                  {/* Content Wrapper */}
+                  <div className={`${isBMIDiastolicChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI vs. Diastolic BP</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ScatterChart
+                            margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
+                            aria-label="Scatter chart showing BMI vs Diastolic Blood Pressure"
+                          >
+                            <CartesianGrid />
+                            <XAxis type="number" dataKey="bmi" name="BMI" />
+                            <YAxis type="number" dataKey="diastolic" name="Diastolic BP" unit="mmHg" />
+                            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                            <Legend />
+                            <Scatter name="Patients" data={patients.flatMap(patient => 
+                              patient.records.map(record => ({
+                                bmi: parseFloat(record.BMI),
+                                diastolic: parseFloat(record.blood_pressure_diastolic),
+                              }))
+                            )} fill="#FF8042" />
+                          </ScatterChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabPanel>
+          </Tabs>
+        </div>
       </div>
-      <div className="h-14"></div>
     </div>
-    
   );
 };
 

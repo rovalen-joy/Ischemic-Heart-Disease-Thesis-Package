@@ -150,23 +150,23 @@ const HomePage = () => {
       <div className="absolute top-0 left-0 w-0 h-0 joyride-disclaimer-target"></div>
 
       {/* Header */}
-      <h1 className="text-4xl font-semibold mb-6 text-[#353535] mt-10 leading-tight joyride-welcome">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-6 text-[#353535] mt-10 leading-tight joyride-welcome text-center">
         Welcome, Dr. {userData?.firstName || 'User'} {userData?.lastName || ''}!
       </h1>
 
       {/* Introduction */}
-      <div className="max-w-4xl text-center mb-10">
-        <p className="text-lg text-gray-700 mb-4">
+      <div className="max-w-4xl text-center mb-10 px-4">
+        <p className="text-base sm:text-lg text-gray-700 mb-4">
           The IHD Prediction System enables you to assess your patients' risk of ischemic heart disease using comprehensive data inputs. Our tools assist you in making informed decisions to improve patient care.
         </p>
-        <p className="text-lg text-gray-700 mb-6">
+        <p className="text-base sm:text-lg text-gray-700 mb-6">
           Get acquainted with the system by clicking the "Get Started" button below:
         </p>
 
         {/* Get Started Button */}
         <button
           onClick={startTour}
-          className="bg-[#05747F] text-white py-2 px-4 rounded-lg font-medium hover:bg-[#035f62] transition-colors duration-200 joyride-get-started"
+          className="bg-[#05747F] text-white py-2 px-6 rounded-lg font-medium hover:bg-[#035f62] transition-colors duration-200 joyride-get-started"
           title="Start the guided tour"
         >
           Get Started
@@ -174,40 +174,46 @@ const HomePage = () => {
       </div>
 
       {/* Steps with Icons */}
-      <div className="grid grid-cols-3 gap-6 max-w-5xl joyride-steps">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl joyride-steps px-4">
         {/* Step 1 */}
         <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center joyride-step1">
-          <FaUserPlus className="text-4xl text-[#05747F] mb-4" />
-          <h2 className="text-xl font-bold mb-2 text-[#353535]">1. Fill in the Patient's Information</h2>
-          <p className="text-gray-600 text-center">
+          <FaUserPlus className="text-3xl sm:text-4xl text-[#05747F] mb-4" />
+          <h2 className="text-lg sm:text-xl font-bold mb-2 text-[#353535] text-center">
+            1. Fill in the Patient's Information
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 text-center">
             Enter patient data such as age, cholesterol levels, and blood pressure to generate accurate predictions.
           </p>
         </div>
 
         {/* Step 2 */}
         <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center joyride-step2">
-          <FaHeartPulse className="text-4xl text-[#05747F] mb-4" />
-          <h2 className="text-xl font-bold mb-2 text-[#353535]">2. Generate Prediction</h2>
-          <p className="text-gray-600 text-center">
+          <FaHeartPulse className="text-3xl sm:text-4xl text-[#05747F] mb-4" />
+          <h2 className="text-lg sm:text-xl font-bold mb-2 text-[#353535] text-center">
+            2. Generate Prediction
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 text-center">
             Use our prediction form to assess the patient’s risk of ischemic heart disease and review the results.
           </p>
         </div>
 
         {/* Step 3 */}
         <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center joyride-step3">
-          <FaSave className="text-4xl text-[#05747F] mb-4" />
-          <h2 className="text-xl font-bold mb-2 text-[#353535]">3. Save and Review</h2>
-          <p className="text-gray-600 text-center">
+          <FaSave className="text-3xl sm:text-4xl text-[#05747F] mb-4" />
+          <h2 className="text-lg sm:text-xl font-bold mb-2 text-[#353535] text-center">
+            3. Save and Review
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 text-center">
             Save predictions for future reference and review past assessments at any time in Patient's Records.
           </p>
         </div>
       </div>
 
       {/* Navigation Buttons */}
-      <div className="mt-10 mb-2 flex flex-col md:flex-row gap-4">
+      <div className="mt-10 mb-2 flex flex-col md:flex-row gap-4 px-4">
         {/* Prediction Form Button */}
         <button
-          className="bg-[#05747F] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#035f62] transition-colors duration-200 joyride-prediction-form"
+          className="bg-[#05747F] text-white py-3 px-6 rounded-lg font-medium hover:bg-[#035f62] transition-colors duration-200 joyride-prediction-form w-full md:w-auto"
           onClick={() => navigate('/prediction-form')}
           title="Fill in patient details to generate a prediction"
         >
@@ -216,11 +222,11 @@ const HomePage = () => {
 
         {/* System Analytics Button */}
         <button
-          className="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200 joyride-patient-history"
+          className="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200 joyride-patient-history w-full md:w-auto"
           onClick={() => navigate('/analytics')}
           title="View saved system analytics and data insights"
         >
-          View System Analystics
+          View System Analytics
         </button>
       </div>
     </div>

@@ -5,7 +5,7 @@ import wvsuLogo from '../../assets/wvsu.png';
 const Footer = () => {
   return (
     <footer className="bg-[#00717A] text-white py-6">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-start px-4 space-y-4 md:space-y-0">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center md:items-start px-4 space-y-6 md:space-y-0">
         
         {/* Logos Section */}
         <div className="flex flex-col items-center md:items-start space-y-2">
@@ -14,7 +14,7 @@ const Footer = () => {
             <img src={cictLogo} alt="CICT Logo" className="h-12 w-12" />
           </div>
           {/* All Rights Reserved Text */}
-          <div className="text-white text-sm mt-2">
+          <div className="text-white text-sm mt-2 text-center md:text-left">
             &copy; {new Date().getFullYear()} IHD Prediction Team. All rights reserved.
           </div>
         </div>

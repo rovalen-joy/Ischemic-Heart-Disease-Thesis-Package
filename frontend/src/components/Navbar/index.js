@@ -48,17 +48,17 @@ const NavigationBar = () => {
           {isSidebarOpen ? <MdClose size={24} /> : <MdMenu size={24} />}
         </button>
 
-        {/* User Info and Logout */}
+        {/* User Info and Logout (visible on desktop screens) */}
         <div className='hidden md:flex items-center gap-4'>
           {user && (
-            <div className='text-white flex items-center gap-1 text-base'>
+            <div className='text-white flex items-center gap-1 text-sm md:text-base'>
               <FaUser size={18} />
               {user.email}
             </div>
           )}
 
           <button
-            className='text-white flex items-center gap-1 text-base hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-white'
+            className='text-white flex items-center gap-1 text-sm md:text-base hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-white'
             onClick={onLogout}
             aria-label="Logout"
           >
@@ -113,6 +113,7 @@ const NavigationBar = () => {
                   Home
                 </NavLink>
               </li>
+              {/* Add other NavLinks here */}
               <li>
                 <NavLink
                   to='/profile'
@@ -134,12 +135,12 @@ const NavigationBar = () => {
                     isActive
                       ? 'flex items-center bg-white text-[#00717A] rounded px-3 py-2 font-medium'
                       : 'flex items-center hover:bg-[#005f61] rounded px-3 py-2 font-medium'
-                    }
-                    onClick={closeSidebar}
+                  }
+                  onClick={closeSidebar}
                 >
                   <FaChartBar className="mr-2" />
                   Analytics
-                  </NavLink>
+                </NavLink>
               </li>
               <li>
                 <NavLink
@@ -190,8 +191,8 @@ const NavigationBar = () => {
                     isActive
                       ? 'flex items-center bg-white text-[#00717A] rounded px-3 py-2 font-medium'
                       : 'flex items-center hover:bg-[#005f61] rounded px-3 py-2 font-medium'
-                    }
-                    onClick={closeSidebar}
+                  }
+                  onClick={closeSidebar}
                 >
                   <FaQuestionCircle className="mr-2" />
                   FAQ
@@ -199,6 +200,25 @@ const NavigationBar = () => {
               </li>
             </ul>
           </nav>
+
+          {/* User Info and Logout in Sidebar (visible on mobile screens) */}
+          <div className='md:hidden p-4 border-t border-[#005f61]'>
+            {user && (
+              <div className='text-white flex items-center gap-1 mb-4'>
+                <FaUser size={18} />
+                {user.email}
+              </div>
+            )}
+
+            <button
+              className='w-full text-white flex items-center justify-center gap-1 py-2 rounded hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-white'
+              onClick={onLogout}
+              aria-label="Logout"
+            >
+              <MdLogout size={20} />
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </>
