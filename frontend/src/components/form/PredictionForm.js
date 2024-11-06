@@ -608,13 +608,13 @@ const PredictionForm = () => {
     // Function to determine badge color based on risk level
     const getRiskColor = (level) => {
       switch (level) {
-        case 'Low':
+        case 'Low Risk':
           return 'bg-green-500';
-        case 'Moderate':
+        case 'Moderate Risk':
           return 'bg-yellow-500';
-        case 'High':
+        case 'High Risk':
           return 'bg-orange-500';
-        case 'Very High':
+        case 'Very High Risk':
           return 'bg-red-500';
         default:
           return 'bg-gray-500';
@@ -635,8 +635,8 @@ const PredictionForm = () => {
               Based on the provided data, the patient is predicted to be <strong>{results.prediction}</strong> to Ischemic Heart Disease with a risk percentage of <strong>{results.percentage.toFixed(2)}%</strong>.
             </p>
             <p>
-              This categorizes the patient as <span className={`text-white px-2 py-1 rounded ${getRiskColor(results.risk_level)}`}>
-                {results.risk_level} Risk
+              This categorizes the patient as <span className={`text-white px-1 py-1 rounded ${getRiskColor(results.risk_level)}`}>
+                {results.risk_level}
               </span>.
             </p>
           </div>
