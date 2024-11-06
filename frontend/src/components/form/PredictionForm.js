@@ -265,7 +265,7 @@ const PredictionForm = () => {
         timestamp: Timestamp.now(),
         risk_result: results.prediction,
         risk_percentage: results.percentage,
-        risk_level: results.risk_level,
+        risk_level: results.risk_level, 
         userid: user.uid,
       };
       console.log('Saving record data:', recordData);
@@ -602,40 +602,69 @@ const PredictionForm = () => {
   );
 
   // Render Step 3: Prediction Results
-  const renderStepThree = () => (
-    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-6 py-6 sm:px-8 sm:py-8'>
-      <div className='flex items-center mb-4'>
-        <FaCheckCircle className='text-[#28a745] mr-2 text-xl' />
-        <span className='text-[#28a745] font-bold text-lg sm:text-xl'>Step 3: Prediction Results</span>
-      </div>
-      <hr className='border-gray-300 my-4' />
-      <div className='flex items-center mb-6 flex-col sm:flex-row sm:items-center'>
-        <FaHeart className='text-[#00717A] mr-2 text-xl mb-2 sm:mb-0' />
-        <span className='text-gray-700 font-medium text-lg sm:text-xl text-center sm:text-left'>
-          The patient is <strong>{results.prediction}</strong> to Ischemic Heart Disease with a risk percentage of <strong>{(results.percentage).toFixed(2)}%</strong>.
-        </span>
-      </div>
-      <div className='flex flex-col sm:flex-row justify-end gap-4'>
-        <button
-          onClick={() => setModalSave(true)}
-          type='button'
-          className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 sm:px-6 sm:py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200 w-full sm:w-auto'
-          aria-label="Save Prediction"
-        >
-          Save
-        </button>
-        <button
-          onClick={() => setModalNew(true)}
-          type='button'
-          className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 sm:px-6 sm:py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200 w-full sm:w-auto'
-          aria-label="Enter New Data"
-        >
-          Enter New Data
-        </button>
-      </div>
-    </div>
-  );
+  const renderStepThree = () => {
+    // Function to determine badge color based on risk level
+    const getRiskColor = (level) => {
+      switch (level) {
+        case 'Low':
+          return 'bg-green-500';
+        case 'Moderate':
+          return 'bg-yellow-500';
+        case 'High':
+          return 'bg-orange-500';
+        case 'Very High':
+          return 'bg-red-500';
+        default:
+          return 'bg-gray-500';
+      }
+    };
 
+    return (
+      <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-6 py-6 sm:px-8 sm:py-8'>
+        <div className='flex items-center mb-4'>
+          <FaCheckCircle className='text-[#28a745] mr-2 text-xl' />
+          <span className='text-[#28a745] font-bold text-lg sm:text-xl'>Step 3: Prediction Results</span>
+        </div>
+        <hr className='border-gray-300 my-4' />
+        <div className='flex items-center mb-6 flex-col sm:flex-row sm:items-center'>
+          <FaHeart className='text-[#00717A] mr-2 text-xl mb-2 sm:mb-0' />
+          <div className='text-gray-700 font-medium text-lg sm:text-xl text-center sm:text-left'>
+            <p>
+              <strong>Prediction:</strong> {results.prediction} Ischemic Heart Disease
+            </p>
+            <p>
+              <strong>Risk Percentage:</strong> {(results.percentage).toFixed(2)}%
+            </p>
+            <p className='mt-2'>
+              <strong>Risk Level:</strong> <span className={`text-white px-2 py-1 rounded ${getRiskColor(results.risk_level)}`}>
+                {results.risk_level}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className='flex flex-col sm:flex-row justify-end gap-4'>
+          <button
+            onClick={() => setModalSave(true)}
+            type='button'
+            className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 sm:px-6 sm:py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200 w-full sm:w-auto'
+            aria-label="Save Prediction"
+          >
+            Save
+          </button>
+          <button
+            onClick={() => setModalNew(true)}
+            type='button'
+            className='bg-[#00717A] rounded-md text-white font-semibold px-6 py-2 sm:px-6 sm:py-2 text-sm hover:bg-[#005f61] focus:outline-none focus:ring-2 focus:ring-[#005f61] transition-colors duration-200 w-full sm:w-auto'
+            aria-label="Enter New Data"
+          >
+            Enter New Data
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  //Render Reference Table for Risk Categories
   const renderReferenceTable = () => (
     <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6 mt-6'>
       <div className='flex items-center mb-4'>
@@ -643,6 +672,13 @@ const PredictionForm = () => {
         <span className='text-[#00717A] font-bold text-lg'>Risk Categories Reference</span>
       </div>
       <hr className='border-gray-300 my-4' />
+      {/* Informative Text with Hyperlink */}
+      <p className='text-gray-600 mb-4 text-sm sm:text-base'>
+        This reference table is based on the <a href="https://iris.who.int/bitstream/handle/10665/43786/9789241547253_eng.pdf?sequence=1" target="_blank" rel="noopener noreferrer" className='text-blue-500 underline'>
+          World Health Organization (WHO)
+        </a> guidelines for assessment and management of total cardiovascular risk.
+      </p>
+      {/* Reference Table */}
       <div className='overflow-x-auto'>
         <table className='min-w-full bg-white border-collapse'>
           <thead>
@@ -667,8 +703,10 @@ const PredictionForm = () => {
                   Low Risk
                 </span>
               </td>
-              <td className='px-6 py-4 whitespace-nowrap border'>0% to 10%</td>
-              <td className='px-6 py-4 whitespace-nowrap border'>Conservative management focusing on lifestyle interventions is suggested.</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>Less than 10%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at low risk. Low risk does not mean “no” risk. Conservative management focusing on lifestyle interventions is suggested.
+              </td>
             </tr>
             {/* Moderate Risk */}
             <tr className='bg-gray-50 hover:bg-gray-100 transition-colors duration-200'>
@@ -678,8 +716,10 @@ const PredictionForm = () => {
                   Moderate Risk
                 </span>
               </td>
-              <td className='px-6 py-4 whitespace-nowrap border'>10% to 20%</td>
-              <td className='px-6 py-4 whitespace-nowrap border'>Monitor risk profile every 6–12 months.</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>10% to less than 20%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at moderate risk of fatal or non-fatal vascular events. Monitor risk profile every 6–12 months.
+              </td>
             </tr>
             {/* High Risk */}
             <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
@@ -689,8 +729,10 @@ const PredictionForm = () => {
                   High Risk
                 </span>
               </td>
-              <td className='px-6 py-4 whitespace-nowrap border'>20% to 30%</td>
-              <td className='px-6 py-4 whitespace-nowrap border'>Monitor risk profile every 3–6 months.</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>20% to less than 30%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at high risk of fatal or non-fatal vascular events. Monitor risk profile every 3–6 months.
+              </td>
             </tr>
             {/* Very High Risk */}
             <tr className='bg-gray-50 hover:bg-gray-100 transition-colors duration-200'>
@@ -701,12 +743,14 @@ const PredictionForm = () => {
                 </span>
               </td>
               <td className='px-6 py-4 whitespace-nowrap border'>More than 30%</td>
-              <td className='px-6 py-4 whitespace-nowrap border'>Immediate medical attention is recommended.</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at very high risk of fatal or non-fatal vascular events. Monitor risk profile every 3–6 months.
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div> 
+    </div>
   );
 
   return (

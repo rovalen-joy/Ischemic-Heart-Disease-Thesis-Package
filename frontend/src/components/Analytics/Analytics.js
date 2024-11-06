@@ -1,3 +1,5 @@
+// src/components/Analytics/Analytics.js
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { db } from '../../firebase';
 import {
@@ -25,7 +27,7 @@ import {
 } from 'recharts';
 import toast from 'react-hot-toast';
 import { UserAuth } from '../../context/AuthContext';
-import { FaChartLine } from 'react-icons/fa';
+import { FaChartLine, FaInfoCircle } from 'react-icons/fa';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css'; 
 import './Analytics.css'; 
@@ -42,6 +44,9 @@ const scatterFeatures = [
 ];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
+
+// Colors for Pie Chart representing Risk Categories
+const RISK_COLORS = ['#82ca9d', '#8884d8', '#ffc658', '#ff8042'];
 
 const Analytics = () => {
   const { user } = UserAuth();
@@ -133,6 +138,7 @@ const Analytics = () => {
     let lowRisk = 0;
     let moderateRisk = 0;
     let highRisk = 0;
+    let veryHighRisk = 0; // Added Very High Risk
 
     // Health Metrics
     let totalBP_Systolic = 0;
@@ -180,6 +186,7 @@ const Analytics = () => {
         if (record.risk_result === 'Low') lowRisk += 1;
         else if (record.risk_result === 'Moderate') moderateRisk += 1;
         else if (record.risk_result === 'High') highRisk += 1;
+        else if (record.risk_result === 'Very High') veryHighRisk += 1; // Handle Very High Risk
 
         // Health Metrics
         const bp_systolic = parseFloat(record.blood_pressure_systolic);
@@ -247,6 +254,7 @@ const Analytics = () => {
       { name: 'Low Risk', value: lowRisk },
       { name: 'Moderate Risk', value: moderateRisk },
       { name: 'High Risk', value: highRisk },
+      { name: 'Very High Risk', value: veryHighRisk }, 
     ];
 
     const trendArray = Object.keys(trendMap).map(month => ({
@@ -285,20 +293,12 @@ const Analytics = () => {
 
     // Summary Report Data
     const totalPatients = patients.length;
-    const avgAge = patients.reduce((acc, patient) => acc + parseInt(patient.age, 10), 0) / totalPatients || 0;
-    const avgBMIVal = averageBMI;
-    const avgSystolicBP = bpCount === 0 ? 0 : (totalBP_Systolic / bpCount).toFixed(2);
-    const avgDiastolicBP = bpCount === 0 ? 0 : (totalBP_Diastolic / bpCount).toFixed(2);
-    const avgCholesterol = cholesterolCount === 0 ? 0 : (totalCholesterol / cholesterolCount).toFixed(2);
-
     const summaryData = {
       Total_Patients: totalPatients,
-      Average_Age: Math.round(avgAge), 
-      Average_BMI: avgBMIVal,
-      'Patients with Stroke': strokeYes, 
-      'Average Systolic BP': avgSystolicBP,
-      'Average Diastolic BP': avgDiastolicBP,
-      'Average Total Cholesterol': avgCholesterol,
+      'Low Risk Patients': lowRisk, 
+      'Moderate Risk Patients': moderateRisk, 
+      'High Risk Patients': highRisk, 
+      'Very High Risk Patients': veryHighRisk, 
     };
 
     return {
@@ -315,13 +315,13 @@ const Analytics = () => {
       healthMetrics: {
         BMI: bmiData, 
         Blood_Pressure_Systolic: bpCount === 0 ? [] : [
-          { name: 'Average Systolic BP', value: parseFloat(avgSystolicBP) },
+          { name: 'Average Systolic BP', value: parseFloat((totalBP_Systolic / bpCount).toFixed(2)) },
         ],
         Blood_Pressure_Diastolic: bpCount === 0 ? [] : [
-          { name: 'Average Diastolic BP', value: parseFloat(avgDiastolicBP) },
+          { name: 'Average Diastolic BP', value: parseFloat((totalBP_Diastolic / bpCount).toFixed(2)) },
         ],
         Cholesterol_Level: cholesterolCount === 0 ? [] : [
-          { name: 'Average Cholesterol', value: parseFloat(avgCholesterol) },
+          { name: 'Average Cholesterol', value: parseFloat((totalCholesterol / cholesterolCount).toFixed(2)) },
         ],
         History_of_Stroke: [
           { name: 'Yes', value: strokeYes },
@@ -368,6 +368,7 @@ const Analytics = () => {
         dataPoint['Blood_Pressure_Diastolic'] = parseFloat(record.blood_pressure_diastolic);
         dataPoint['Cholesterol_Level'] = parseFloat(record.cholesterol_level);
         dataPoint['History_of_Stroke'] = record.history_of_stroke === 'Yes' ? 1 : 0;
+        dataPoint['Risk_Level'] = record.risk_level; 
         return dataPoint;
       })
     ).filter(point => {
@@ -391,6 +392,95 @@ const Analytics = () => {
   const filteredScatterFeaturesY = useMemo(() => {
     return scatterFeatures.filter(feature => feature.value !== scatterX);
   }, [scatterX]);
+
+  // Render Reference Table Function
+  const renderReferenceTable = () => (
+    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6 mt-6'>
+      <div className='flex items-center mb-4'>
+        <FaInfoCircle className='text-[#00717A] mr-2 text-xl' />
+        <span className='text-[#00717A] font-bold text-lg'>Risk Categories Reference</span>
+      </div>
+      <hr className='border-gray-300 my-4' />
+      {/* Informative Text with Hyperlink */}
+      <p className='text-gray-600 mb-4 text-sm sm:text-base'>
+        This reference table is based on the <a href="https://iris.who.int/bitstream/handle/10665/43786/9789241547253_eng.pdf?sequence=1" target="_blank" rel="noopener noreferrer" className='text-blue-500 underline'>
+          World Health Organization (WHO)
+        </a> guidelines for assessment and management of total cardiovascular risk.
+      </p>
+      {/* Reference Table */}
+      <div className='overflow-x-auto'>
+        <table className='min-w-full bg-white border-collapse'>
+          <thead>
+            <tr>
+              <th className='px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border'>
+                Risk Category
+              </th>
+              <th className='px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border'>
+                Risk Percentage
+              </th>
+              <th className='px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border'>
+                Description
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Low Risk */}
+            <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-blue-500 rounded-full mr-2'></span>
+                  Low Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>Less than 10%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at low risk. Low risk does not mean “no” risk. Conservative management focusing on lifestyle interventions is suggested.
+              </td>
+            </tr>
+            {/* Moderate Risk */}
+            <tr className='bg-gray-50 hover:bg-gray-100 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-yellow-500 rounded-full mr-2'></span>
+                  Moderate Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>10% to less than 20%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at moderate risk of fatal or non-fatal vascular events. Monitor risk profile every 6–12 months.
+              </td>
+            </tr>
+            {/* High Risk */}
+            <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-orange-500 rounded-full mr-2'></span>
+                  High Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>20% to less than 30%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at high risk of fatal or non-fatal vascular events. Monitor risk profile every 3–6 months.
+              </td>
+            </tr>
+            {/* Very High Risk */}
+            <tr className='bg-gray-50 hover:bg-gray-100 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-red-500 rounded-full mr-2'></span>
+                  Very High Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>More than 30%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                Individuals in this category are at very high risk of fatal or non-fatal vascular events. Monitor risk profile every 3–6 months.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -436,56 +526,42 @@ const Analytics = () => {
     <div className="bg-gray-100 min-h-screen pb-8">
       {/* Header */}
       <div className="p-4 sm:p-6">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-4 text-[#00717A] uppercase">Patient Analytics Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-4 text-[#00717A] uppercase">
+          Patient Analytics Dashboard
+        </h1>
       </div>
 
       {/* Summary Report */}
       <div className="container mx-auto mb-8 px-4">
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg sm:text-2xl font-semibold mb-4 text-center">Summary Report</h2>
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-semibold mb-6 text-center text-[#00717A]">Summary Report</h2>
 
           {/* Summary Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {/* Total Patients - Full Width */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center sm:col-span-2 md:col-span-3">
-              <span className="text-gray-500 font-medium mb-2">Total Patients</span>
-              <span className="text-2xl sm:text-3xl font-bold text-[#00717A]">{aggregatedData.summaryData.Total_Patients}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-6">
+            {/* Row 1: Total Patients */}
+            <div className="col-span-1 sm:col-span-2 bg-gray-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
+              <p className="text-gray-600 mb-2">Total Patients</p>
+              <p className="text-3xl font-bold text-black">{aggregatedData.summaryData.Total_Patients}</p>
             </div>
 
-            {/* Average Age */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">Average Age</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_Age} yrs</span>
+            {/* Row 2: Low Risk and Moderate Risk */}
+            <div className="col-span-1 bg-blue-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
+              <p className="text-gray-600 mb-2">Low Risk Patients</p>
+              <p className="text-2xl font-bold text-blue-600">{aggregatedData.summaryData['Low Risk Patients']}</p>
+            </div>
+            <div className="col-span-1 bg-yellow-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
+              <p className="text-gray-600 mb-2">Moderate Risk Patients</p>
+              <p className="text-2xl font-bold text-yellow-600">{aggregatedData.summaryData['Moderate Risk Patients']}</p>
             </div>
 
-            {/* Average BMI */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">Average BMI</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData.Average_BMI}</span>
+            {/* Row 3: High Risk and Very High Risk */}
+            <div className="col-span-1 bg-orange-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
+              <p className="text-gray-600 mb-2">High Risk Patients</p>
+              <p className="text-2xl font-bold text-orange-600">{aggregatedData.summaryData['High Risk Patients']}</p>
             </div>
-
-            {/* Patients with Stroke */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">Patients with Stroke</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Patients with Stroke']}</span>
-            </div>
-
-            {/* Average Systolic BP */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">Average Systolic BP</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Systolic BP']} mmHg</span>
-            </div>
-
-            {/* Average Diastolic BP */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">Average Diastolic BP</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Diastolic BP']} mmHg</span>
-            </div>
-
-            {/* Average Cholesterol Level */}
-            <div className="bg-gray-50 p-4 rounded-lg shadow-inner flex flex-col items-center">
-              <span className="text-gray-500 font-medium mb-2">Average Cholesterol Level</span>
-              <span className="text-xl sm:text-2xl font-bold text-[#00717A]">{aggregatedData.summaryData['Average Total Cholesterol']} mmol/L</span>
+            <div className="col-span-1 bg-red-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
+              <p className="text-gray-600 mb-2">Very High Risk Patients</p>
+              <p className="text-2xl font-bold text-red-600">{aggregatedData.summaryData['Very High Risk Patients']}</p>
             </div>
           </div>
         </div>
@@ -501,6 +577,9 @@ const Analytics = () => {
             <TabList className="flex flex-wrap justify-center space-x-2 overflow-x-auto">
               <Tab className="tab px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]">
                 Patient Overview
+              </Tab>
+              <Tab className="tab px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]">
+                Risk Categories
               </Tab>
               <Tab className="tab px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]">
                 Demographics
@@ -582,6 +661,43 @@ const Analytics = () => {
               </div>
             </TabPanel>
 
+            {/* Risk Categories Tab */}
+            <TabPanel>
+              <div className="flex flex-col space-y-8 mt-4">
+                {/* Risk Categories Distribution (Pie Chart) */}
+                <div>
+                  <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                    <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Risk Categories Distribution</h2>
+                    <div className="w-full h-64 sm:h-96 flex flex-col items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart aria-label="Pie chart showing distribution of patients across risk categories">
+                          <Pie
+                            data={aggregatedData.riskData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="#8884d8"
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          >
+                            {aggregatedData.riskData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={RISK_COLORS[index % RISK_COLORS.length]} aria-label={`${entry.name}: ${entry.value}`} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reference Table */}
+                {renderReferenceTable()}
+              </div>
+            </TabPanel>
+
             {/* Demographics Tab */}
             <TabPanel>
               <div className="flex flex-col space-y-8 mt-4">
@@ -592,6 +708,7 @@ const Analytics = () => {
                     <button
                       onClick={() => setIsAgeChartOpen(!isAgeChartOpen)}
                       className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                      aria-label="Toggle Age Distribution Chart"
                     >
                       <span>Age Distribution</span>
                       {isAgeChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
@@ -606,7 +723,6 @@ const Analytics = () => {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             data={aggregatedData.ageData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                             aria-label="Bar chart showing age distribution of patients"
                           >
                             <CartesianGrid strokeDasharray="3 3" />
@@ -629,6 +745,7 @@ const Analytics = () => {
                     <button
                       onClick={() => setIsGenderChartOpen(!isGenderChartOpen)}
                       className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                      aria-label="Toggle Gender Ratio Chart"
                     >
                       <span>Gender Ratio</span>
                       {isGenderChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
@@ -682,6 +799,7 @@ const Analytics = () => {
                     <button
                       onClick={() => setIsBMICategoriesChartOpen(!isBMICategoriesChartOpen)}
                       className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                      aria-label="Toggle BMI Categories Chart"
                     >
                       <span>BMI Categories</span>
                       {isBMICategoriesChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
@@ -695,8 +813,7 @@ const Analytics = () => {
                       <div className="w-full h-64 sm:h-96">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
-                            data={aggregatedData.healthMetrics.BMI.filter(item => item.name !== 'Average BMI')}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                            data={aggregatedData.bmiData.filter(item => item.name !== 'Average BMI')}
                             aria-label="Bar chart showing BMI categories of patients"
                           >
                             <CartesianGrid strokeDasharray="3 3" />
@@ -757,7 +874,7 @@ const Analytics = () => {
                   <div className="w-full h-64 sm:h-96">
                     <ResponsiveContainer width="100%" height="100%">
                       <ScatterChart
-                        margin={{ top: 20, right: 30, bottom: 40, left: 20 }} // Increased bottom margin to accommodate labels
+                        margin={{ top: 20, right: 30, bottom: 40, left: 20 }}
                         aria-label={`Scatter chart showing ${scatterX} vs ${scatterY}`}
                       >
                         <CartesianGrid />
@@ -774,7 +891,209 @@ const Analytics = () => {
                           label={{ value: scatterFeatures.find(f => f.value === scatterY)?.label, angle: -90, position: 'insideLeft', offset: -10 }}
                         />
                         <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px', top: 0, right: 0 }} /> {/* Positioned to top-right with spacing */}
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px', top: 0, right: 0 }} />
+                        <Scatter name="Patients" data={scatterData} fill="#8884d8" />
+                      </ScatterChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </TabPanel>
+
+            {/* Demographics Tab */}
+            <TabPanel>
+              <div className="flex flex-col space-y-8 mt-4">
+                {/* Age Distribution (Bar Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsAgeChartOpen(!isAgeChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                      aria-label="Toggle Age Distribution Chart"
+                    >
+                      <span>Age Distribution</span>
+                      {isAgeChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
+
+                  {/* Content Wrapper */}
+                  <div className={`${isAgeChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Age Distribution</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={aggregatedData.ageData}
+                            aria-label="Bar chart showing age distribution of patients"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="ageRange" />
+                            <YAxis allowDecimals={false} />
+                            <Tooltip />
+                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                            <Bar dataKey="count" fill="#00717A" name="Number of Patients" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gender Ratio (Pie Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsGenderChartOpen(!isGenderChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                      aria-label="Toggle Gender Ratio Chart"
+                    >
+                      <span>Gender Ratio</span>
+                      {isGenderChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
+
+                  {/* Content Wrapper */}
+                  <div className={`${isGenderChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Gender Ratio</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart aria-label="Pie chart showing gender ratio of patients">
+                            <Pie
+                              data={aggregatedData.genderData}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={true}
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                              outerRadius={80}
+                              fill="#82ca9d"
+                              dataKey="value"
+                              nameKey="name"
+                            >
+                              {aggregatedData.genderData.map((entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={COLORS[index % COLORS.length]}
+                                  aria-label={`${entry.name}: ${entry.value}`}
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabPanel>
+
+            {/* Health Metrics Tab */}
+            <TabPanel>
+              <div className="flex flex-col space-y-8 mt-4">
+                {/* BMI Categories (Bar Chart) */}
+                <div>
+                  {/* Collapsible Section for Mobile Screens */}
+                  <div className="md:hidden mb-4">
+                    <button
+                      onClick={() => setIsBMICategoriesChartOpen(!isBMICategoriesChartOpen)}
+                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
+                      aria-label="Toggle BMI Categories Chart"
+                    >
+                      <span>BMI Categories</span>
+                      {isBMICategoriesChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
+                    </button>
+                  </div>
+
+                  {/* Content Wrapper */}
+                  <div className={`${isBMICategoriesChartOpen ? '' : 'hidden'} md:block`}>
+                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI Categories</h2>
+                      <div className="w-full h-64 sm:h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={aggregatedData.bmiData.filter(item => item.name !== 'Average BMI')}
+                            aria-label="Bar chart showing BMI categories of patients"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis allowDecimals={false} />
+                            <Tooltip />
+                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                            <Bar dataKey="value" fill="#00717A" name="Number of Patients" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dynamic Scatter Plot Selection */}
+                <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
+                  <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Custom Scatter Plot</h2>
+                  <div className="flex flex-col sm:flex-row items-center justify-center mb-4">
+                    {/* X-Axis Selection */}
+                    <div className="flex flex-col mr-4 mb-4 sm:mb-0">
+                      <label htmlFor="scatterX" className="mb-2 text-gray-700 font-medium">Select X-Axis:</label>
+                      <select
+                        id="scatterX"
+                        name="scatterX"
+                        value={scatterX}
+                        onChange={handleScatterXChange}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A]"
+                        aria-label="Select X-Axis for Scatter Plot"
+                      >
+                        <option value="" disabled>Select X-Axis</option>
+                        {filteredScatterFeaturesX.map(feature => (
+                          <option key={feature.value} value={feature.value}>{feature.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Y-Axis Selection */}
+                    <div className="flex flex-col">
+                      <label htmlFor="scatterY" className="mb-2 text-gray-700 font-medium">Select Y-Axis:</label>
+                      <select
+                        id="scatterY"
+                        name="scatterY"
+                        value={scatterY}
+                        onChange={handleScatterYChange}
+                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A]"
+                        aria-label="Select Y-Axis for Scatter Plot"
+                      >
+                        <option value="" disabled>Select Y-Axis</option>
+                        {filteredScatterFeaturesY.map(feature => (
+                          <option key={feature.value} value={feature.value}>{feature.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Scatter Plot */}
+                  <div className="w-full h-64 sm:h-96">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ScatterChart
+                        margin={{ top: 20, right: 30, bottom: 40, left: 20 }}
+                        aria-label={`Scatter chart showing ${scatterX} vs ${scatterY}`}
+                      >
+                        <CartesianGrid />
+                        <XAxis
+                          type="number"
+                          dataKey={scatterX}
+                          name={scatterX}
+                          label={{ value: scatterFeatures.find(f => f.value === scatterX)?.label, position: 'insideBottom', offset: -10 }}
+                        />
+                        <YAxis
+                          type="number"
+                          dataKey={scatterY}
+                          name={scatterY}
+                          label={{ value: scatterFeatures.find(f => f.value === scatterY)?.label, angle: -90, position: 'insideLeft', offset: -10 }}
+                        />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px', top: 0, right: 0 }} />
                         <Scatter name="Patients" data={scatterData} fill="#8884d8" />
                       </ScatterChart>
                     </ResponsiveContainer>

@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 # Load the trained model and scaler
 try:
     logger.info("Loading the scaler...")
-    scaler = joblib.load('scaler1.joblib')  # Ensure this path is correct
+    scaler = joblib.load('scaler1.joblib')  
     logger.info("Scaler loaded successfully.")
 
     logger.info("Loading the trained model...")
-    model = joblib.load('final_model1.joblib')  # Ensure this path matches your saved model
+    model = joblib.load('final_model1.joblib') 
     logger.info("Model loaded successfully.")
 except Exception as e:
     logger.error(f"Error loading model or scaler: {e}")
@@ -33,8 +33,9 @@ def classify_risk_level(probability):
     else:
         return "Very High Risk: Immediate medical attention is recommended."
 
-def determine_susceptibility(probability, threshold=50):
-    return "susceptible" if probability >= threshold else "not susceptible"
+def determine_susceptibility(probability):
+    return "not susceptible" if probability == 0 else "susceptible"
+
 
 @app.route('/')
 def home():
