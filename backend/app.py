@@ -104,7 +104,7 @@ def predict():
         risk_percentage = round(probability * 100, 2)
 
         # Determine susceptibility based on threshold 
-        susceptibility = determine_susceptibility(risk_percentage, threshold=50)
+        susceptibility = determine_susceptibility(risk_percentage)
 
         # Classify risk level based on percentage
         risk_level_description = classify_risk_level(risk_percentage)
