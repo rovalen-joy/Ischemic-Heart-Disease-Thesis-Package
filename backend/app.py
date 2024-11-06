@@ -24,11 +24,11 @@ except Exception as e:
     logger.error(f"Error loading model or scaler: {e}")
 
 def classify_risk_level(probability):
-    if probability <= 10:
+    if probability <= 20:
         return "Low Risk"
-    elif 10 < probability <= 20:
+    elif 20 <= probability < 40:
         return "Moderate Risk"
-    elif 20 < probability <= 30:
+    elif 40 <= probability < 60:
         return "High Risk"
     else:
         return "Very High Risk"

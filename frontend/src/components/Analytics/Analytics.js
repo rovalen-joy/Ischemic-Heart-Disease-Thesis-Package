@@ -180,11 +180,11 @@ const Analytics = () => {
           else if (bmi < 18.5) lowBMI += 1; // Underweight
         }
 
-        // Risk Assessment
-        if (record.risk_result === 'Low') lowRisk += 1;
-        else if (record.risk_result === 'Moderate') moderateRisk += 1;
-        else if (record.risk_result === 'High') highRisk += 1;
-        else if (record.risk_result === 'Very High') veryHighRisk += 1; // Handle Very High Risk
+        // **Updated Risk Assessment to use 'risk_level' instead of 'risk_result'**
+        if (record.risk_level === 'Low') lowRisk += 1;
+        else if (record.risk_level === 'Moderate') moderateRisk += 1;
+        else if (record.risk_level === 'High') highRisk += 1;
+        else if (record.risk_level === 'Very High') veryHighRisk += 1; // Handle Very High Risk
 
         // Health Metrics
         const bp_systolic = parseFloat(record.blood_pressure_systolic);
@@ -289,7 +289,6 @@ const Analytics = () => {
       count: yearlyCounts[year],
     }));
 
-    // Summary Report Data
     const totalPatients = patients.length;
     const summaryData = {
       Total_Patients: totalPatients,
@@ -539,26 +538,31 @@ const Analytics = () => {
             {/* Row 1: Total Patients */}
             <div className="col-span-1 sm:col-span-2 bg-gray-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
               <p className="text-gray-600 mb-2">Total Patients</p>
+              {/* **Updated to reference the correct key 'Total_Patients'** */}
               <p className="text-3xl font-bold text-black">{aggregatedData.summaryData.Total_Patients}</p>
             </div>
 
             {/* Row 2: Low Risk and Moderate Risk */}
             <div className="col-span-1 bg-blue-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
               <p className="text-gray-600 mb-2">Low Risk Patients</p>
+              {/* **Updated to reference 'Low Risk Patients' instead of 'Low Risk'** */}
               <p className="text-2xl font-bold text-blue-600">{aggregatedData.summaryData['Low Risk Patients']}</p>
             </div>
             <div className="col-span-1 bg-yellow-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
               <p className="text-gray-600 mb-2">Moderate Risk Patients</p>
+              {/* **Updated to reference 'Moderate Risk Patients' instead of 'Moderate Risk'** */}
               <p className="text-2xl font-bold text-yellow-600">{aggregatedData.summaryData['Moderate Risk Patients']}</p>
             </div>
 
             {/* Row 3: High Risk and Very High Risk */}
             <div className="col-span-1 bg-orange-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
               <p className="text-gray-600 mb-2">High Risk Patients</p>
+              {/* **Updated to reference 'High Risk Patients' instead of 'High Risk'** */}
               <p className="text-2xl font-bold text-orange-600">{aggregatedData.summaryData['High Risk Patients']}</p>
             </div>
             <div className="col-span-1 bg-red-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
               <p className="text-gray-600 mb-2">Very High Risk Patients</p>
+              {/* **Updated to reference 'Very High Risk Patients' instead of 'Very High Risk'** */}
               <p className="text-2xl font-bold text-red-600">{aggregatedData.summaryData['Very High Risk Patients']}</p>
             </div>
           </div>
@@ -693,208 +697,6 @@ const Analytics = () => {
 
                 {/* Reference Table */}
                 {renderReferenceTable()}
-              </div>
-            </TabPanel>
-
-            {/* Demographics Tab */}
-            <TabPanel>
-              <div className="flex flex-col space-y-8 mt-4">
-                {/* Age Distribution (Bar Chart) */}
-                <div>
-                  {/* Collapsible Section for Mobile Screens */}
-                  <div className="md:hidden mb-4">
-                    <button
-                      onClick={() => setIsAgeChartOpen(!isAgeChartOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
-                      aria-label="Toggle Age Distribution Chart"
-                    >
-                      <span>Age Distribution</span>
-                      {isAgeChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
-                    </button>
-                  </div>
-
-                  {/* Content Wrapper */}
-                  <div className={`${isAgeChartOpen ? '' : 'hidden'} md:block`}>
-                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Age Distribution</h2>
-                      <div className="w-full h-64 sm:h-96">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={aggregatedData.ageData}
-                            aria-label="Bar chart showing age distribution of patients"
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="ageRange" />
-                            <YAxis allowDecimals={false} />
-                            <Tooltip />
-                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                            <Bar dataKey="count" fill="#00717A" name="Number of Patients" />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Gender Ratio (Pie Chart) */}
-                <div>
-                  {/* Collapsible Section for Mobile Screens */}
-                  <div className="md:hidden mb-4">
-                    <button
-                      onClick={() => setIsGenderChartOpen(!isGenderChartOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
-                      aria-label="Toggle Gender Ratio Chart"
-                    >
-                      <span>Gender Ratio</span>
-                      {isGenderChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
-                    </button>
-                  </div>
-
-                  {/* Content Wrapper */}
-                  <div className={`${isGenderChartOpen ? '' : 'hidden'} md:block`}>
-                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Gender Ratio</h2>
-                      <div className="w-full h-64 sm:h-96">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart aria-label="Pie chart showing gender ratio of patients">
-                            <Pie
-                              data={aggregatedData.genderData}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={true}
-                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                              outerRadius={80}
-                              fill="#82ca9d"
-                              dataKey="value"
-                              nameKey="name"
-                            >
-                              {aggregatedData.genderData.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS[index % COLORS.length]}
-                                  aria-label={`${entry.name}: ${entry.value}`}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabPanel>
-
-            {/* Health Metrics Tab */}
-            <TabPanel>
-              <div className="flex flex-col space-y-8 mt-4">
-                {/* BMI Categories (Bar Chart) */}
-                <div>
-                  {/* Collapsible Section for Mobile Screens */}
-                  <div className="md:hidden mb-4">
-                    <button
-                      onClick={() => setIsBMICategoriesChartOpen(!isBMICategoriesChartOpen)}
-                      className="w-full flex items-center justify-between px-4 py-2 bg-[#00717A] text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00717A]"
-                      aria-label="Toggle BMI Categories Chart"
-                    >
-                      <span>BMI Categories</span>
-                      {isBMICategoriesChartOpen ? <MdExpandLess size={24} /> : <MdExpandMore size={24} />}
-                    </button>
-                  </div>
-
-                  {/* Content Wrapper */}
-                  <div className={`${isBMICategoriesChartOpen ? '' : 'hidden'} md:block`}>
-                    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">BMI Categories</h2>
-                      <div className="w-full h-64 sm:h-96">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={aggregatedData.bmiData.filter(item => item.name !== 'Average BMI')}
-                            aria-label="Bar chart showing BMI categories of patients"
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis allowDecimals={false} />
-                            <Tooltip />
-                            <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                            <Bar dataKey="value" fill="#00717A" name="Number of Patients" />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dynamic Scatter Plot Selection */}
-                <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner">
-                  <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Custom Scatter Plot</h2>
-                  <div className="flex flex-col sm:flex-row items-center justify-center mb-4">
-                    {/* X-Axis Selection */}
-                    <div className="flex flex-col mr-4 mb-4 sm:mb-0">
-                      <label htmlFor="scatterX" className="mb-2 text-gray-700 font-medium">Select X-Axis:</label>
-                      <select
-                        id="scatterX"
-                        name="scatterX"
-                        value={scatterX}
-                        onChange={handleScatterXChange}
-                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A]"
-                        aria-label="Select X-Axis for Scatter Plot"
-                      >
-                        <option value="" disabled>Select X-Axis</option>
-                        {filteredScatterFeaturesX.map(feature => (
-                          <option key={feature.value} value={feature.value}>{feature.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Y-Axis Selection */}
-                    <div className="flex flex-col">
-                      <label htmlFor="scatterY" className="mb-2 text-gray-700 font-medium">Select Y-Axis:</label>
-                      <select
-                        id="scatterY"
-                        name="scatterY"
-                        value={scatterY}
-                        onChange={handleScatterYChange}
-                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#00717A]"
-                        aria-label="Select Y-Axis for Scatter Plot"
-                      >
-                        <option value="" disabled>Select Y-Axis</option>
-                        {filteredScatterFeaturesY.map(feature => (
-                          <option key={feature.value} value={feature.value}>{feature.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Scatter Plot */}
-                  <div className="w-full h-64 sm:h-96">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ScatterChart
-                        margin={{ top: 20, right: 30, bottom: 40, left: 20 }}
-                        aria-label={`Scatter chart showing ${scatterX} vs ${scatterY}`}
-                      >
-                        <CartesianGrid />
-                        <XAxis
-                          type="number"
-                          dataKey={scatterX}
-                          name={scatterX}
-                          label={{ value: scatterFeatures.find(f => f.value === scatterX)?.label, position: 'insideBottom', offset: -10 }}
-                        />
-                        <YAxis
-                          type="number"
-                          dataKey={scatterY}
-                          name={scatterY}
-                          label={{ value: scatterFeatures.find(f => f.value === scatterY)?.label, angle: -90, position: 'insideLeft', offset: -10 }}
-                        />
-                        <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                        <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px', top: 0, right: 0 }} />
-                        <Scatter name="Patients" data={scatterData} fill="#8884d8" />
-                      </ScatterChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
               </div>
             </TabPanel>
 
