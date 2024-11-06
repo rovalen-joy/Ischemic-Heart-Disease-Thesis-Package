@@ -19,6 +19,7 @@ import {
   FaUserMd,
   FaHeart,
   FaCheckCircle,
+  FaInfoCircle,
 } from 'react-icons/fa';
 
 // Utility function to check if all required fields have values
@@ -104,22 +105,48 @@ const PredictionForm = () => {
     e.preventDefault();
     if (isSubmitting) return; // Prevent multiple submissions
 
-    // Validate that BMI is a positive number
+    // Extract and parse input values
+    const age = parseFloat(details.age);
+    const bpSyst = parseFloat(details.blood_pressure_systolic);
+    const bpDias = parseFloat(details.blood_pressure_diastolic);
+    const chol = parseFloat(details.cholesterol_level);
     const bmiValue = parseFloat(details.BMI);
-    if (isNaN(bmiValue) || bmiValue <= 0) {
-      return toast.error('Please enter valid weight and height to calculate BMI.', {
+
+    // Validation Rules
+    const validationErrors = [];
+
+    if (isNaN(age) || age < 18 || age > 98) {
+      validationErrors.push('Age must be between 18 and 98 years.');
+    }
+    if (isNaN(bpSyst) || bpSyst < 90 || bpSyst > 210) {
+      validationErrors.push('Systolic Blood Pressure must be between 90 and 210 mm Hg.');
+    }
+    if (isNaN(bpDias) || bpDias < 60 || bpDias > 120) {
+      validationErrors.push('Diastolic Blood Pressure must be between 60 and 120 mm Hg.');
+    }
+    if (isNaN(chol) || chol < 1.02 || chol > 10.8) {
+      validationErrors.push('Cholesterol Level must be between 1.02 and 10.8 mmol/L.');
+    }
+    if (isNaN(bmiValue) || bmiValue < 18.02 || bmiValue > 36.96) {
+      validationErrors.push('BMI must be between 18.02 and 36.96 kg/m².');
+    }
+
+    if (validationErrors.length > 0) {
+      validationErrors.forEach((err) => toast.error(err, {
         style: {
           fontSize: '1rem',
           padding: '0.75rem',
         },
-      });
+      }));
+      return;
     }
 
     setIsSubmitting(true);
     const formattedDetails = {
-      Age: parseFloat(details.age),
-      BP_Syst: parseFloat(details.blood_pressure_systolic),
-      Chol: parseFloat(details.cholesterol_level),
+      Age: age,
+      BP_Syst: bpSyst,
+      BP_Dias: bpDias,
+      Chol: chol,
       BMI: bmiValue,
       Stroke: details.history_of_stroke === 'Yes' ? 1 : 0,
     };
@@ -131,12 +158,12 @@ const PredictionForm = () => {
       );
       console.log('Received response from backend:', response.data);
 
-      const predictionResult = response.data.prediction;
-      const riskPercentage = response.data.percentage;
+      const { prediction, percentage, risk_level } = response.data;
 
       setResults({
-        prediction: predictionResult,
-        percentage: riskPercentage,
+        prediction,
+        percentage,
+        risk_level,
       });
       setCurrentStep(3); // Move to Prediction Results step
       toast.success('Prediction completed.', {
@@ -147,7 +174,10 @@ const PredictionForm = () => {
       });
     } catch (error) {
       console.error('There was an error making the request:', error);
-      toast.error('Failed to fetch prediction results.', {
+      const errorMsg = error.response && error.response.data && error.response.data.error
+        ? error.response.data.error
+        : 'Failed to fetch prediction results.';
+      toast.error(errorMsg, {
         style: {
           fontSize: '1rem',
           padding: '0.75rem',
@@ -218,17 +248,24 @@ const PredictionForm = () => {
         patientDocRef = newPatientDocRef;
       }
 
+      // **Parse the necessary variables here**
+      const bpSyst = parseFloat(details.blood_pressure_systolic);
+      const bpDias = parseFloat(details.blood_pressure_diastolic);
+      const chol = parseFloat(details.cholesterol_level);
+      const bmiValue = parseFloat(details.BMI);
+
       const recordData = {
-        blood_pressure_systolic: parseFloat(details.blood_pressure_systolic),
-        blood_pressure_diastolic: parseFloat(details.blood_pressure_diastolic),
-        cholesterol_level: parseFloat(details.cholesterol_level),
+        blood_pressure_systolic: bpSyst, 
+        blood_pressure_diastolic: bpDias, 
+        cholesterol_level: chol, 
         weight: parseFloat(details.weight),
         height: parseFloat(details.height),
-        BMI: parseFloat(details.BMI),
+        BMI: bmiValue,
         history_of_stroke: details.history_of_stroke,
         timestamp: Timestamp.now(),
         risk_result: results.prediction,
         risk_percentage: results.percentage,
+        risk_level: results.risk_level,
         userid: user.uid,
       };
       console.log('Saving record data:', recordData);
@@ -338,13 +375,14 @@ const PredictionForm = () => {
             </label>
             <input
               type='number'
-              min='0'
+              min='18'
+              max='98'
               className='bg-gray-100 h-12 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='age'
               value={details.age}
               onChange={handleFormChange}
               required
-              placeholder='Enter age'
+              placeholder='Enter age (18-98)'
             />
           </div>
           {/* Sex */}
@@ -410,34 +448,36 @@ const PredictionForm = () => {
       >
         {/* Blood Pressure */}
         <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 items-center col-span-1 sm:col-span-2'>
-          <div className='flex flex-col sm:w-1/2 w-full'>
+          <div className='flex flex-col sm:w-1/2'>
             <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               Systolic (mm Hg):
             </label>
             <input
               type='number'
-              min='0'
+              min='90'
+              max='210'
               className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='blood_pressure_systolic'
               value={details.blood_pressure_systolic}
               onChange={handleFormChange}
               required
-              placeholder='Systolic'
+              placeholder='Systolic (90-210)'
             />
           </div>
-          <div className='flex flex-col sm:w-1/2 w-full'>
+          <div className='flex flex-col sm:w-1/2'>
             <label className='text-gray-700 font-semibold text-sm mb-1' style={{ textAlign: 'left' }}>
               Diastolic (mm Hg):
             </label>
             <input
               type='number'
-              min='0'
+              min='60'
+              max='120'
               className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='blood_pressure_diastolic'
               value={details.blood_pressure_diastolic}
               onChange={handleFormChange}
               required
-              placeholder='Diastolic'
+              placeholder='Diastolic (60-120)'
             />
           </div>
         </div>
@@ -451,14 +491,15 @@ const PredictionForm = () => {
             </label>
             <input
               type='number'
-              min='0'
+              min='1.02'
+              max='10.8'
               step='0.01'
               className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='cholesterol_level'
               value={details.cholesterol_level}
               onChange={handleFormChange}
               required
-              placeholder='Enter cholesterol level'
+              placeholder='Cholesterol Level (1.02-10.8)'
             />
           </div>
           {/* History of Stroke */}
@@ -595,6 +636,79 @@ const PredictionForm = () => {
     </div>
   );
 
+  const renderReferenceTable = () => (
+    <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6 mt-6'>
+      <div className='flex items-center mb-4'>
+        <FaInfoCircle className='text-[#00717A] mr-2 text-xl' />
+        <span className='text-[#00717A] font-bold text-lg'>Risk Categories Reference</span>
+      </div>
+      <hr className='border-gray-300 my-4' />
+      <div className='overflow-x-auto'>
+        <table className='min-w-full bg-white border-collapse'>
+          <thead>
+            <tr>
+              <th className='px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border'>
+                Risk Category
+              </th>
+              <th className='px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border'>
+                Risk Percentage
+              </th>
+              <th className='px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border'>
+                Description
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Low Risk */}
+            <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-blue-500 rounded-full mr-2'></span>
+                  Low Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>0% to 10%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>Conservative management focusing on lifestyle interventions is suggested.</td>
+            </tr>
+            {/* Moderate Risk */}
+            <tr className='bg-gray-50 hover:bg-gray-100 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-yellow-500 rounded-full mr-2'></span>
+                  Moderate Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>10% to 20%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>Monitor risk profile every 6–12 months.</td>
+            </tr>
+            {/* High Risk */}
+            <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-orange-500 rounded-full mr-2'></span>
+                  High Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>20% to 30%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>Monitor risk profile every 3–6 months.</td>
+            </tr>
+            {/* Very High Risk */}
+            <tr className='bg-gray-50 hover:bg-gray-100 transition-colors duration-200'>
+              <td className='px-6 py-4 whitespace-nowrap border'>
+                <span className='flex items-center'>
+                  <span className='inline-block w-2 h-2 bg-red-500 rounded-full mr-2'></span>
+                  Very High Risk
+                </span>
+              </td>
+              <td className='px-6 py-4 whitespace-nowrap border'>More than 30%</td>
+              <td className='px-6 py-4 whitespace-nowrap border'>Immediate medical attention is recommended.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> 
+  );
+
   return (
     <div className='flex justify-center flex-col gap-6 mt-4 pt-6 pb-10 px-4 sm:px-6 md:px-10 lg:px-20'>
       {/* Header */}
@@ -640,7 +754,12 @@ const PredictionForm = () => {
       {/* Prediction Form Steps */}
       {currentStep === 1 && renderStepOne()}
       {currentStep === 2 && renderStepTwo()}
-      {currentStep === 3 && renderStepThree()}
+      {currentStep === 3 && (
+        <>
+          {renderStepThree()}
+          {renderReferenceTable()}
+        </>
+      )} 
 
       {/* Modal Components */}
       {modalSave && (

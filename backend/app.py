@@ -14,14 +14,27 @@ logger = logging.getLogger(__name__)
 # Load the trained model and scaler
 try:
     logger.info("Loading the scaler...")
-    scaler = joblib.load('scaler1.joblib')
+    scaler = joblib.load('scaler1.joblib')  # Ensure this path is correct
     logger.info("Scaler loaded successfully.")
 
     logger.info("Loading the trained model...")
-    model = joblib.load('final_model1.joblib')
+    model = joblib.load('final_model1.joblib')  # Ensure this path matches your saved model
     logger.info("Model loaded successfully.")
 except Exception as e:
     logger.error(f"Error loading model or scaler: {e}")
+
+def classify_risk_level(probability):
+    if probability <= 10:
+        return "Low Risk: Conservative management focusing on lifestyle interventions is suggested."
+    elif 10 < probability <= 20:
+        return "Moderate Risk: Monitor risk profile every 6–12 months."
+    elif 20 < probability <= 30:
+        return "High Risk: Monitor risk profile every 3–6 months."
+    else:
+        return "Very High Risk: Immediate medical attention is recommended."
+
+def determine_susceptibility(probability, threshold=50):
+    return "susceptible" if probability >= threshold else "not susceptible"
 
 @app.route('/')
 def home():
@@ -33,35 +46,51 @@ def predict():
         data = request.get_json()
         logger.info(f"Received data for prediction: {data}")
 
-        # Extract input features
-        Age = float(data['Age'])
-        BP_Syst = float(data['BP_Syst'])
-        Chol = float(data['Chol'])
-        BMI = float(data['BMI'])
-        Stroke = int(data['Stroke'])  # Should be 0 or 1
+        # Validate that all required fields are present
+        required_fields = ['Stroke', 'BP_Syst', 'BP_Dias', 'Chol', 'Age', 'BMI']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            error_msg = f"Missing fields in input data: {', '.join(missing_fields)}"
+            logger.error(error_msg)
+            return jsonify({'error': error_msg}), 400
 
-        # Compute interaction features
-        BP_Age_Interaction = BP_Syst * Age
-        Chol_Age_Interaction = Chol * Age
-        Chol_BMI_Interaction = Chol * BMI
-        Stroke_BMI_Interaction = Stroke * BMI
+        # Extract and validate input features
+        try:
+            Stroke = int(data['Stroke'])
+            if Stroke not in [0, 1]:
+                raise ValueError("Stroke must be 0 or 1.")
+        except ValueError as e:
+            logger.error(f"Invalid input for Stroke: {e}")
+            return jsonify({'error': str(e)}), 400
 
-        logger.info("Computed interaction features.")
+        try:
+            BP_Syst = float(data['BP_Syst'])
+            BP_Dias = float(data['BP_Dias'])
+            Chol = float(data['Chol'])
+            Age = float(data['Age'])
+            BMI = float(data['BMI'])
 
-        # Create DataFrame with the features
-        features = pd.DataFrame([{
-            'BP_Age_Interaction': BP_Age_Interaction,
-            'Chol_Age_Interaction': Chol_Age_Interaction,
-            'Chol_BMI_Interaction': Chol_BMI_Interaction,
+            # Check for non-negative values
+            if any(x < 0 for x in [BP_Syst, BP_Dias, Chol, Age, BMI]):
+                raise ValueError("BP_Syst, BP_Dias, Chol, Age, and BMI must be non-negative numbers.")
+        except ValueError as e:
+            logger.error(f"Invalid input type or value: {e}")
+            return jsonify({'error': f"Invalid input type or value: {e}"}), 400
+
+        # Create DataFrame with input features
+        user_df = pd.DataFrame([{
+            'Stroke': Stroke,
             'BP_Syst': BP_Syst,
+            'BP_Dias': BP_Dias,
+            'Chol': Chol,
             'Age': Age,
-            'Stroke_BMI_Interaction': Stroke_BMI_Interaction
+            'BMI': BMI
         }])
 
-        logger.info(f"Features for prediction: {features.to_dict(orient='records')}")
+        logger.info(f"Features for prediction: {user_df.to_dict(orient='records')}")
 
         # Scale features
-        features_scaled = scaler.transform(features)
+        features_scaled = scaler.transform(user_df)
         logger.info("Features scaled successfully.")
 
         # Get prediction and probability
@@ -70,14 +99,25 @@ def predict():
 
         logger.info(f"Model prediction: {prediction}, Probability: {probability}")
 
-        # Convert prediction and probability to response format
-        prediction_str = "susceptible" if prediction == 1 else "not susceptible"
+        # Convert probability to percentage
+        risk_percentage = round(probability * 100, 2)
+
+        # Determine susceptibility based on threshold 
+        susceptibility = determine_susceptibility(risk_percentage, threshold=50)
+
+        # Classify risk level based on percentage
+        risk_level_description = classify_risk_level(risk_percentage)
+
+        # Prepare response
         response = {
-            'prediction': prediction_str,
-            'percentage': round(probability * 100, 2)  # Convert to percentage
+            'prediction': susceptibility,
+            'percentage': risk_percentage,           
+            'risk_level': risk_level_description     
         }
+
         logger.info(f"Sending response: {response}")
-        return jsonify(response)
+        return jsonify(response), 200
+
     except Exception as e:
         logger.error(f"Error during prediction: {e}")
         return jsonify({'error': str(e)}), 500

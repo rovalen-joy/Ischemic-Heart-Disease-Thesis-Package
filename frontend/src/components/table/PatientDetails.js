@@ -245,7 +245,7 @@ const PatientDetails = () => {
       {/* Unified Container for Patient Info and Prediction History */}
       <div className="w-full bg-white shadow-md rounded-md p-6 border-2 border-[#299FA8]">
 
-        {/* Combined Patient Name, Age, and Sex in One Row with Equal Spacing */}
+        {/* Combined Patient Name, Age, and Sex in One Row */}
         <div className="flex flex-row justify-between w-full mb-6">
           {/* Patient Name */}
           <div className="flex flex-col">
@@ -282,7 +282,8 @@ const PatientDetails = () => {
                     <th className="px-4 py-2 border">Height</th>
                     <th className="px-4 py-2 border">History of Stroke</th>
                     <th className="px-4 py-2 border">Risk Result</th>
-                    <th className="px-4 py-2 border">Risk Percentage</th> {/* New Column */}
+                    <th className="px-4 py-2 border">Risk Percentage</th>
+                    <th className="px-4 py-2 border">Risk Level</th> 
                   </tr>
                 </thead>
                 <tbody>
@@ -326,7 +327,10 @@ const PatientDetails = () => {
                         {typeof record.risk_percentage === 'number'
                           ? `${record.risk_percentage.toFixed(2)}%`
                           : record.risk_percentage || 'N/A'}
-                      </td> {/* New Cell */}
+                      </td>
+                      <td className="px-4 py-2 border">
+                        {record.risk_level ? record.risk_level : 'N/A'}
+                      </td> 
                     </tr>
                   ))}
                 </tbody>
