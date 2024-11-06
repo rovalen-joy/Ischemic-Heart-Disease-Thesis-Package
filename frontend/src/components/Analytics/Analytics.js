@@ -1,5 +1,3 @@
-// src/components/Analytics/Analytics.js
-
 import React, { useEffect, useState, useMemo } from 'react';
 import { db } from '../../firebase';
 import {
