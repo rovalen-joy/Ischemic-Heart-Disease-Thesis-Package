@@ -25,13 +25,13 @@ except Exception as e:
 
 def classify_risk_level(probability):
     if probability <= 10:
-        return "Low Risk: Conservative management focusing on lifestyle interventions is suggested."
+        return "Low Risk"
     elif 10 < probability <= 20:
-        return "Moderate Risk: Monitor risk profile every 6–12 months."
+        return "Moderate Risk"
     elif 20 < probability <= 30:
-        return "High Risk: Monitor risk profile every 3–6 months."
+        return "High Risk"
     else:
-        return "Very High Risk: Immediate medical attention is recommended."
+        return "Very High Risk"
 
 def determine_susceptibility(probability):
     return "not susceptible" if probability == 0 else "susceptible"

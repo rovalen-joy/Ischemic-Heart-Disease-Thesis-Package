@@ -1,3 +1,5 @@
+// src/components/PredictionForm/PredictionForm.js
+
 import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import ModalSave from '../Modal/ModalSave';
@@ -629,16 +631,13 @@ const PredictionForm = () => {
         <div className='flex items-center mb-6 flex-col sm:flex-row sm:items-center'>
           <FaHeart className='text-[#00717A] mr-2 text-xl mb-2 sm:mb-0' />
           <div className='text-gray-700 font-medium text-lg sm:text-xl text-center sm:text-left'>
-            <p>
-              <strong>Prediction:</strong> {results.prediction} Ischemic Heart Disease
+            <p className='mb-2'>
+              Based on the provided data, the patient is predicted to be <strong>{results.prediction}</strong> to Ischemic Heart Disease with a risk percentage of <strong>{results.percentage.toFixed(2)}%</strong>.
             </p>
             <p>
-              <strong>Risk Percentage:</strong> {(results.percentage).toFixed(2)}%
-            </p>
-            <p className='mt-2'>
-              <strong>Risk Level:</strong> <span className={`text-white px-2 py-1 rounded ${getRiskColor(results.risk_level)}`}>
-                {results.risk_level}
-              </span>
+              This categorizes the patient as <span className={`text-white px-2 py-1 rounded ${getRiskColor(results.risk_level)}`}>
+                {results.risk_level} Risk
+              </span>.
             </p>
           </div>
         </div>
@@ -664,7 +663,7 @@ const PredictionForm = () => {
     );
   };
 
-  //Render Reference Table for Risk Categories
+  // Render Reference Table for Risk Categories
   const renderReferenceTable = () => (
     <div className='bg-white rounded-lg shadow-lg border-2 border-gray-200 px-8 py-6 mt-6'>
       <div className='flex items-center mb-4'>
