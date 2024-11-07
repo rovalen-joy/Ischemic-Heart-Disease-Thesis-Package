@@ -101,7 +101,7 @@ def predict():
         logger.info(f"Model prediction: {prediction}, Probability: {probability}")
 
         # Convert probability to percentage
-        risk_percentage = (probability * 100, 2, 2)
+        risk_percentage = round(probability * 100/2, 2)
 
         # Determine susceptibility based on threshold 
         susceptibility = determine_susceptibility(risk_percentage)
