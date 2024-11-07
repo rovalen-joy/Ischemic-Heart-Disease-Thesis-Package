@@ -44,7 +44,7 @@ const scatterFeatures = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
 
 // Colors for Pie Chart representing Risk Categories
-const RISK_COLORS = ['#82ca9d', '#8884d8', '#ffc658', '#ff8042'];
+const RISK_COLORS = ['#82ca9d', '#8884d8', '#ffc658', '#ff8042', '#a83232']; // Added color for 'Unknown Risk'
 
 const Analytics = () => {
   const { user } = UserAuth();
@@ -136,7 +136,8 @@ const Analytics = () => {
     let lowRisk = 0;
     let moderateRisk = 0;
     let highRisk = 0;
-    let veryHighRisk = 0; // Added Very High Risk
+    let veryHighRisk = 0; // Very High Risk
+    let unknownRisk = 0; // Unknown Risk
 
     // Health Metrics
     let totalBP_Systolic = 0;
@@ -180,11 +181,28 @@ const Analytics = () => {
           else if (bmi < 18.5) lowBMI += 1; // Underweight
         }
 
-        // **Updated Risk Assessment to use 'risk_level' instead of 'risk_result'**
-        if (record.risk_level === 'Low') lowRisk += 1;
-        else if (record.risk_level === 'Moderate') moderateRisk += 1;
-        else if (record.risk_level === 'High') highRisk += 1;
-        else if (record.risk_level === 'Very High') veryHighRisk += 1; // Handle Very High Risk
+        // **Normalized Risk Assessment to handle casing and whitespace**
+        const riskLevelRaw = record.risk_level || 'Unknown';
+        const riskLevel = riskLevelRaw.trim().toLowerCase();
+
+        switch (riskLevel) {
+          case 'low risk':
+            lowRisk += 1;
+            break;
+          case 'moderate risk':
+            moderateRisk += 1;
+            break;
+          case 'high risk':
+            highRisk += 1;
+            break;
+          case 'very high risk':
+            veryHighRisk += 1;
+            break;
+          default:
+            unknownRisk += 1;
+            console.warn(`Unexpected risk level encountered: "${record.risk_level}"`);
+            break;
+        }
 
         // Health Metrics
         const bp_systolic = parseFloat(record.blood_pressure_systolic);
@@ -252,7 +270,8 @@ const Analytics = () => {
       { name: 'Low Risk', value: lowRisk },
       { name: 'Moderate Risk', value: moderateRisk },
       { name: 'High Risk', value: highRisk },
-      { name: 'Very High Risk', value: veryHighRisk }, 
+      { name: 'Very High Risk', value: veryHighRisk },
+      { name: 'Unknown Risk', value: unknownRisk }, // Added Unknown Risk
     ];
 
     const trendArray = Object.keys(trendMap).map(month => ({
@@ -295,8 +314,13 @@ const Analytics = () => {
       'Low Risk Patients': lowRisk, 
       'Moderate Risk Patients': moderateRisk, 
       'High Risk Patients': highRisk, 
-      'Very High Risk Patients': veryHighRisk, 
+      'Very High Risk Patients': veryHighRisk,
+      'Unknown Risk Patients': unknownRisk, // Ensure this key exists
     };
+
+    // **Debugging Logs**
+    console.log('Aggregated Summary Data:', summaryData);
+    console.log('Aggregated Risk Data:', riskData);
 
     return {
       ageData,
@@ -473,6 +497,21 @@ const Analytics = () => {
                 Individuals in this category are at very high risk of fatal or non-fatal vascular events. Monitor risk profile every 3–6 months.
               </td>
             </tr>
+            {/* Unknown Risk */}
+            {aggregatedData.summaryData?.['Unknown Risk Patients'] > 0 && (
+              <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
+                <td className='px-6 py-4 whitespace-nowrap border'>
+                  <span className='flex items-center'>
+                    <span className='inline-block w-2 h-2 bg-gray-500 rounded-full mr-2'></span>
+                    Unknown Risk
+                  </span>
+                </td>
+                <td className='px-6 py-4 whitespace-nowrap border'>N/A</td>
+                <td className='px-6 py-4 whitespace-nowrap border'>
+                  Records with undefined or unexpected risk levels.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -534,36 +573,35 @@ const Analytics = () => {
           <h2 className="text-2xl font-semibold mb-6 text-center text-[#00717A]">Summary Report</h2>
 
           {/* Summary Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-6">
-            {/* Row 1: Total Patients */}
-            <div className="col-span-1 sm:col-span-2 bg-gray-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            {/* Total Patients */}
+            <div className="bg-gray-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
               <p className="text-gray-600 mb-2">Total Patients</p>
-              {/* **Updated to reference the correct key 'Total_Patients'** */}
-              <p className="text-3xl font-bold text-black">{aggregatedData.summaryData.Total_Patients}</p>
+              <p className="text-3xl font-bold text-black">{aggregatedData.summaryData?.Total_Patients || 0}</p>
             </div>
 
-            {/* Row 2: Low Risk and Moderate Risk */}
-            <div className="col-span-1 bg-blue-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
-              <p className="text-gray-600 mb-2">Low Risk Patients</p>
-              {/* **Updated to reference 'Low Risk Patients' instead of 'Low Risk'** */}
-              <p className="text-2xl font-bold text-blue-600">{aggregatedData.summaryData['Low Risk Patients']}</p>
-            </div>
-            <div className="col-span-1 bg-yellow-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
-              <p className="text-gray-600 mb-2">Moderate Risk Patients</p>
-              {/* **Updated to reference 'Moderate Risk Patients' instead of 'Moderate Risk'** */}
-              <p className="text-2xl font-bold text-yellow-600">{aggregatedData.summaryData['Moderate Risk Patients']}</p>
+            {/* Low Risk Patients */}
+            <div className="bg-blue-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <p className="text-gray-600 mb-2">Low Risk</p>
+              <p className="text-2xl font-bold text-blue-600">{aggregatedData.summaryData?.['Low Risk Patients'] || 0}</p>
             </div>
 
-            {/* Row 3: High Risk and Very High Risk */}
-            <div className="col-span-1 bg-orange-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
-              <p className="text-gray-600 mb-2">High Risk Patients</p>
-              {/* **Updated to reference 'High Risk Patients' instead of 'High Risk'** */}
-              <p className="text-2xl font-bold text-orange-600">{aggregatedData.summaryData['High Risk Patients']}</p>
+            {/* Moderate Risk Patients */}
+            <div className="bg-yellow-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <p className="text-gray-600 mb-2">Moderate Risk</p>
+              <p className="text-2xl font-bold text-yellow-600">{aggregatedData.summaryData?.['Moderate Risk Patients'] || 0}</p>
             </div>
-            <div className="col-span-1 bg-red-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center h-full">
-              <p className="text-gray-600 mb-2">Very High Risk Patients</p>
-              {/* **Updated to reference 'Very High Risk Patients' instead of 'Very High Risk'** */}
-              <p className="text-2xl font-bold text-red-600">{aggregatedData.summaryData['Very High Risk Patients']}</p>
+
+            {/* High Risk Patients */}
+            <div className="bg-orange-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <p className="text-gray-600 mb-2">High Risk</p>
+              <p className="text-2xl font-bold text-orange-600">{aggregatedData.summaryData?.['High Risk Patients'] || 0}</p>
+            </div>
+
+            {/* Very High Risk Patients */}
+            <div className="bg-red-100 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <p className="text-gray-600 mb-2">Very High Risk</p>
+              <p className="text-2xl font-bold text-red-600">{aggregatedData.summaryData?.['Very High Risk Patients'] || 0}</p>
             </div>
           </div>
         </div>
