@@ -96,12 +96,12 @@ def predict():
 
         # Get prediction and probability
         prediction = model.predict(features_scaled)[0]
-        probability = model.predict_proba(features_scaled)[0][1]  # Probability for class '1'
+        probability = model.predict_proba(features_scaled)[0][1]*100/2  # Probability for class '1'
 
         logger.info(f"Model prediction: {prediction}, Probability: {probability}")
 
         # Convert probability to percentage
-        risk_percentage = round(probability * 100/2, 2)
+        risk_percentage = round(probability, 2)
 
         # Determine susceptibility based on threshold 
         susceptibility = determine_susceptibility(risk_percentage)
