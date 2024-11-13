@@ -32,6 +32,7 @@ import './Analytics.css';
 
 import { MdExpandMore, MdExpandLess } from 'react-icons/md';
 
+// Features available for Scatter Plot
 const scatterFeatures = [
   { value: 'Age', label: 'Age (yrs)' },
   { value: 'BMI', label: 'BMI' },
@@ -41,9 +42,10 @@ const scatterFeatures = [
   { value: 'History_of_Stroke', label: 'History of Stroke' }, 
 ];
 
+// Colors for various charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
 
-// Colors for Pie Chart representing Risk Categories
+// Colors specifically for Risk Categories Pie Chart
 const RISK_COLORS = ['#5797FF', '#F5D247', '#FF9347', '#FF5454']; // Blue, Yellow, Orange, Red
 
 const Analytics = () => {
@@ -245,6 +247,7 @@ const Analytics = () => {
       });
     });
 
+    // Prepare data for charts
     const ageData = Object.keys(ageBuckets).map(key => ({
       ageRange: key,
       count: ageBuckets[key],
@@ -693,9 +696,9 @@ const Analytics = () => {
                       <ResponsiveContainer width="100%" height="100%">
                         {aggregatedData.riskData && aggregatedData.riskData.length > 0 ? (
                           (() => {
-                            // Filter out risk categories with zero patients
+                            // Filter out risk categories with zero patients for the Pie
                             const filteredRiskData = aggregatedData.riskData.filter(entry => entry.value > 0);
-                            return filteredRiskData.length > 0 ? (
+                            return (
                               <PieChart aria-label="Pie chart showing distribution of patients across risk categories">
                                 <Pie
                                   data={filteredRiskData}
@@ -716,10 +719,29 @@ const Analytics = () => {
                                   ))}
                                 </Pie>
                                 <Tooltip />
-                                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                                <Legend 
+                                  verticalAlign="bottom" 
+                                  height={36} 
+                                  payload={aggregatedData.riskData.map((item, index) => ({
+                                    id: item.name,
+                                    type: 'circle',
+                                    value: `${item.name}: ${item.value}`,
+                                    color: RISK_COLORS[index % RISK_COLORS.length],
+                                    inactive: item.value === 0, 
+                                  }))}
+                                  formatter={(value, entry) => {
+                                    // Extract the risk category name and value
+                                    const [name, count] = value.split(': ');
+                                    // Determine if the category has zero patients
+                                    const isZero = count === '0';
+                                    return (
+                                      <span style={{ color: isZero ? '#A0A0A0' : '#000000' }}>
+                                        {name}: {count}
+                                      </span>
+                                    );
+                                  }}
+                                />
                               </PieChart>
-                            ) : (
-                              <p className="text-center text-gray-500">No data available for Risk Categories.</p>
                             );
                           })()
                         ) : (
@@ -740,7 +762,7 @@ const Analytics = () => {
               <div className="flex flex-col space-y-8 mt-4">
                 {/* Age Distribution (Bar Chart) */}
                 <div>
-                  {/* Collapsible Section for Mobile Screens */}
+                  {/* Collapsible Section for small screens */}
                   <div className="md:hidden mb-4">
                     <button
                       onClick={() => setIsAgeChartOpen(!isAgeChartOpen)}
@@ -777,7 +799,7 @@ const Analytics = () => {
 
                 {/* Gender Ratio (Pie Chart) */}
                 <div>
-                  {/* Collapsible Section for Mobile Screens */}
+                  {/* Collapsible Section for small screens */}
                   <div className="md:hidden mb-4">
                     <button
                       onClick={() => setIsGenderChartOpen(!isGenderChartOpen)}
@@ -831,7 +853,7 @@ const Analytics = () => {
               <div className="flex flex-col space-y-8 mt-4">
                 {/* BMI Categories (Bar Chart) */}
                 <div>
-                  {/* Collapsible Section for Mobile Screens */}
+                  {/* Collapsible Section for small screens */}
                   <div className="md:hidden mb-4">
                     <button
                       onClick={() => setIsBMICategoriesChartOpen(!isBMICategoriesChartOpen)}
@@ -942,5 +964,6 @@ const Analytics = () => {
     </div>
   );
 };
+
 
 export default Analytics;
