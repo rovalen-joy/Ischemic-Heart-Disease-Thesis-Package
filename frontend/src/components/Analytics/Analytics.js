@@ -44,7 +44,7 @@ const scatterFeatures = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
 
 // Colors for Pie Chart representing Risk Categories
-const RISK_COLORS = ['#5797FF', '#F5D247', '#FF9347', '#FF5454'];// Blue, Yellow, Orange, Red
+const RISK_COLORS = ['#5797FF', '#F5D247', '#FF9347', '#FF5454']; // Blue, Yellow, Orange, Red
 
 const Analytics = () => {
   const { user } = UserAuth();
@@ -199,7 +199,6 @@ const Analytics = () => {
             veryHighRisk += 1;
             break;
           default:
-            
             break;
         }
 
@@ -692,24 +691,40 @@ const Analytics = () => {
                     <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Risk Categories Distribution</h2>
                     <div className="w-full h-64 sm:h-96 flex flex-col items-center justify-center">
                       <ResponsiveContainer width="100%" height="100%">
-                        <PieChart aria-label="Pie chart showing distribution of patients across risk categories">
-                          <Pie
-                            data={aggregatedData.riskData}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={80}
-                            fill="#8884d8"
-                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {aggregatedData.riskData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={RISK_COLORS[index % RISK_COLORS.length]} aria-label={`${entry.name}: ${entry.value}`} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                          <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
-                        </PieChart>
+                        {aggregatedData.riskData && aggregatedData.riskData.length > 0 ? (
+                          (() => {
+                            // Filter out risk categories with zero patients
+                            const filteredRiskData = aggregatedData.riskData.filter(entry => entry.value > 0);
+                            return filteredRiskData.length > 0 ? (
+                              <PieChart aria-label="Pie chart showing distribution of patients across risk categories">
+                                <Pie
+                                  data={filteredRiskData}
+                                  dataKey="value"
+                                  nameKey="name"
+                                  cx="50%"
+                                  cy="50%"
+                                  outerRadius={80}
+                                  fill="#8884d8"
+                                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                >
+                                  {filteredRiskData.map((entry, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={RISK_COLORS[index % RISK_COLORS.length]}
+                                      aria-label={`${entry.name}: ${entry.value}`}
+                                    />
+                                  ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px' }} />
+                              </PieChart>
+                            ) : (
+                              <p className="text-center text-gray-500">No data available for Risk Categories.</p>
+                            );
+                          })()
+                        ) : (
+                          <p className="text-center text-gray-500">No data available for Risk Categories.</p>
+                        )}
                       </ResponsiveContainer>
                     </div>
                   </div>
