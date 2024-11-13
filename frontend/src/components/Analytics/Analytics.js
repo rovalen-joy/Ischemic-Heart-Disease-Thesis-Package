@@ -44,7 +44,7 @@ const scatterFeatures = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA336A', '#33AA99', '#AA9933', '#9933AA'];
 
 // Colors for Pie Chart representing Risk Categories
-const RISK_COLORS = ['#82ca9d', '#8884d8', '#ffc658', '#ff8042', '#a83232']; // Added color for 'Unknown Risk'
+const RISK_COLORS = ['#5797FF', '#F5D247', '#FF9347', '#FF5454'];// Blue, Yellow, Orange, Red
 
 const Analytics = () => {
   const { user } = UserAuth();
@@ -137,7 +137,6 @@ const Analytics = () => {
     let moderateRisk = 0;
     let highRisk = 0;
     let veryHighRisk = 0; // Very High Risk
-    let unknownRisk = 0; // Unknown Risk
 
     // Health Metrics
     let totalBP_Systolic = 0;
@@ -181,10 +180,11 @@ const Analytics = () => {
           else if (bmi < 18.5) lowBMI += 1; // Underweight
         }
 
-        // **Normalized Risk Assessment to handle casing and whitespace**
-        const riskLevelRaw = record.risk_level || 'Unknown';
+        // Extract and normalize risk level
+        const riskLevelRaw = record.risk_level || '';
         const riskLevel = riskLevelRaw.trim().toLowerCase();
 
+        // Update counts based on risk level
         switch (riskLevel) {
           case 'low risk':
             lowRisk += 1;
@@ -199,8 +199,7 @@ const Analytics = () => {
             veryHighRisk += 1;
             break;
           default:
-            unknownRisk += 1;
-            console.warn(`Unexpected risk level encountered: "${record.risk_level}"`);
+            
             break;
         }
 
@@ -271,7 +270,6 @@ const Analytics = () => {
       { name: 'Moderate Risk', value: moderateRisk },
       { name: 'High Risk', value: highRisk },
       { name: 'Very High Risk', value: veryHighRisk },
-      { name: 'Unknown Risk', value: unknownRisk }, // Added Unknown Risk
     ];
 
     const trendArray = Object.keys(trendMap).map(month => ({
@@ -315,10 +313,9 @@ const Analytics = () => {
       'Moderate Risk Patients': moderateRisk, 
       'High Risk Patients': highRisk, 
       'Very High Risk Patients': veryHighRisk,
-      'Unknown Risk Patients': unknownRisk, // Ensure this key exists
     };
 
-    // **Debugging Logs**
+    // Debugging Logs
     console.log('Aggregated Summary Data:', summaryData);
     console.log('Aggregated Risk Data:', riskData);
 
@@ -497,21 +494,6 @@ const Analytics = () => {
                 Individuals in this category are at very high risk of fatal or non-fatal vascular events. Monitor risk profile every 3–6 months.
               </td>
             </tr>
-            {/* Unknown Risk */}
-            {aggregatedData.summaryData?.['Unknown Risk Patients'] > 0 && (
-              <tr className='bg-white hover:bg-gray-50 transition-colors duration-200'>
-                <td className='px-6 py-4 whitespace-nowrap border'>
-                  <span className='flex items-center'>
-                    <span className='inline-block w-2 h-2 bg-gray-500 rounded-full mr-2'></span>
-                    Unknown Risk
-                  </span>
-                </td>
-                <td className='px-6 py-4 whitespace-nowrap border'>N/A</td>
-                <td className='px-6 py-4 whitespace-nowrap border'>
-                  Records with undefined or unexpected risk levels.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
@@ -563,7 +545,7 @@ const Analytics = () => {
       {/* Header */}
       <div className="p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-4 text-[#00717A] uppercase">
-          Patient Analytics Dashboard
+          Patients' Analytics Dashboard
         </h1>
       </div>
 
