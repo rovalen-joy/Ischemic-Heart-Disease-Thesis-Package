@@ -96,7 +96,7 @@ def predict():
 
         # Get prediction and probability
         prediction = model.predict(features_scaled)[0]
-        probability = model.predict_proba(features_scaled)[0][1]*100/2  # Probability for class '1'
+        probability = model.predict_proba(features_scaled)[0][1]*100/5  # Probability for class '1'
 
         logger.info(f"Model prediction: {prediction}, Probability: {probability}")
 
