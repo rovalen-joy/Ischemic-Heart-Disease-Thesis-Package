@@ -1,5 +1,3 @@
-// src/components/PredictionForm/PredictionForm.js
-
 import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import ModalSave from '../Modal/ModalSave';
@@ -456,14 +454,12 @@ const PredictionForm = () => {
             </label>
             <input
               type='number'
-              min='90'
-              max='210'
               className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='blood_pressure_systolic'
               value={details.blood_pressure_systolic}
               onChange={handleFormChange}
               required
-              placeholder='Systolic (90-210)'
+              placeholder='Systolic'
             />
           </div>
           <div className='flex flex-col sm:w-1/2'>
@@ -472,14 +468,12 @@ const PredictionForm = () => {
             </label>
             <input
               type='number'
-              min='60'
-              max='120'
               className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='blood_pressure_diastolic'
               value={details.blood_pressure_diastolic}
               onChange={handleFormChange}
               required
-              placeholder='Diastolic (60-120)'
+              placeholder='Diastolic'
             />
           </div>
         </div>
@@ -493,15 +487,13 @@ const PredictionForm = () => {
             </label>
             <input
               type='number'
-              min='1.02'
-              max='10.8'
               step='0.01'
               className='bg-gray-100 h-10 sm:h-10 w-full rounded-sm px-4 sm:px-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#00717A]'
               name='cholesterol_level'
               value={details.cholesterol_level}
               onChange={handleFormChange}
               required
-              placeholder='Cholesterol Level (1.02-10.8)'
+              placeholder='Cholesterol Level'
             />
           </div>
           {/* History of Stroke */}
